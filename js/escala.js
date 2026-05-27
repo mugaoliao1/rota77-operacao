@@ -89,13 +89,14 @@ async function publicarEscala() {
 }
 
 function carregarConfigEscala() {
-  var el = document.getElementById('config-token');
-  if (el) el.value = getToken();
+  if (typeof _atualizarUiToken === 'function') _atualizarUiToken();
 }
 
 function salvarTokenConfig() {
   var token = document.getElementById('config-token').value.trim();
+  if (!token) { mostrarToast('⚠️ Cole o token antes de salvar.', 'erro'); return; }
   saveToken(token);
+  if (typeof _atualizarUiToken === 'function') _atualizarUiToken();
   mostrarToast('✅ Token salvo!', 'sucesso');
 }
 
