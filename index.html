@@ -287,25 +287,60 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 
         <div style="margin-top:20px;">
           <div class="secao-label">Ações da próxima semana</div>
-          ${[1,2,3].map(i => `
           <div class="acao-form">
-            <div class="acao-num">Ação ${i}</div>
-            <input type="text" id="radar-acao${i}" placeholder="Descreva a ação...">
+            <div class="acao-num">Ação 1</div>
+            <input type="text" id="radar-acao1" placeholder="Descreva a ação...">
             <div class="acao-form-grid">
               <div>
                 <label>Responsável</label>
-                <input type="text" id="radar-resp${i}" placeholder="Nome ou equipe">
+                <input type="text" id="radar-resp1" placeholder="Nome ou equipe">
               </div>
               <div>
                 <label>Status</label>
-                <select id="radar-status${i}">
+                <select id="radar-status1">
                   <option value="⏳">⏳ Pendente</option>
                   <option value="🔄">🔄 Em andamento</option>
                   <option value="✅">✅ Concluída</option>
                 </select>
               </div>
             </div>
-          </div>`).join('')}
+          </div>
+          <div class="acao-form">
+            <div class="acao-num">Ação 2</div>
+            <input type="text" id="radar-acao2" placeholder="Descreva a ação...">
+            <div class="acao-form-grid">
+              <div>
+                <label>Responsável</label>
+                <input type="text" id="radar-resp2" placeholder="Nome ou equipe">
+              </div>
+              <div>
+                <label>Status</label>
+                <select id="radar-status2">
+                  <option value="⏳">⏳ Pendente</option>
+                  <option value="🔄">🔄 Em andamento</option>
+                  <option value="✅">✅ Concluída</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="acao-form">
+            <div class="acao-num">Ação 3</div>
+            <input type="text" id="radar-acao3" placeholder="Descreva a ação...">
+            <div class="acao-form-grid">
+              <div>
+                <label>Responsável</label>
+                <input type="text" id="radar-resp3" placeholder="Nome ou equipe">
+              </div>
+              <div>
+                <label>Status</label>
+                <select id="radar-status3">
+                  <option value="⏳">⏳ Pendente</option>
+                  <option value="🔄">🔄 Em andamento</option>
+                  <option value="✅">✅ Concluída</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="btns-row">
