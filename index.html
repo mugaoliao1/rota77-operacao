@@ -166,6 +166,9 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
     <div class="nav-item" onclick="navegar('frota')">
       <span class="nav-icon">📋</span> Boletim da Frota
     </div>
+    <div class="nav-item" onclick="navegar('historico')">
+      <span class="nav-icon">📂</span> Histórico
+    </div>
     <div class="nav-divider"></div>
     <div class="nav-item" onclick="navegar('config')">
       <span class="nav-icon">⚙️</span> Configurações
@@ -528,6 +531,69 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 
   </div>
 
+
+  <!-- ── HISTÓRICO ── -->
+  <div class="page" id="page-historico">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">📂 Histórico de Corridas</div>
+        <div class="card-sub">Importa múltiplos CSVs e salva no Firebase para análise histórica e auto-preenchimento</div>
+      </div>
+      <div class="card-body">
+
+        <div class="drop-zone" id="hist-drop"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="this.classList.remove('over');processarArquivosHistorico(event.dataTransfer.files);event.preventDefault()">
+          <div class="drop-icon">📂</div>
+          <div class="drop-texto"><strong>Arraste os CSVs aqui</strong> (múltiplos arquivos) ou clique para selecionar</div>
+          <input type="file" accept=".csv" multiple id="hist-csv-input" style="display:none"
+            onchange="if(this.files.length)processarArquivosHistorico(this.files)">
+        </div>
+        <script>document.getElementById('hist-drop').addEventListener('click',function(e){if(e.target.tagName!=='INPUT')document.getElementById('hist-csv-input').click();});</script>
+
+        <!-- Barra de progresso -->
+        <div id="hist-progress-wrap" style="display:none;margin-top:14px;">
+          <div style="background:var(--cinza2);border-radius:20px;height:8px;overflow:hidden;margin-bottom:6px;">
+            <div id="hist-progress-bar" style="height:100%;background:var(--amarelo);border-radius:20px;width:0%;transition:width .3s;"></div>
+          </div>
+          <div id="hist-progress-txt" style="font-size:11px;color:var(--cinza4);text-align:center;"></div>
+        </div>
+
+        <!-- Resumo pós-importação -->
+        <div id="hist-resumo" style="display:none;margin-top:16px;background:var(--azul-esc);border-radius:10px;padding:14px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--amarelo);margin-bottom:10px;">Resumo da importação</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+            <div style="color:var(--cinza4);">Arquivos lidos: <strong style="color:var(--branco);" id="hist-r-arquivos">—</strong></div>
+            <div style="color:var(--cinza4);">Dias salvos: <strong style="color:var(--branco);" id="hist-r-dias">—</strong></div>
+            <div style="color:var(--cinza4);">Período: <strong style="color:var(--branco);" id="hist-r-periodo">—</strong></div>
+            <div style="color:var(--cinza4);">Corridas: <strong style="color:var(--branco);" id="hist-r-corridas">—</strong></div>
+            <div style="color:var(--cinza4);">Finalizadas: <strong style="color:var(--branco);" id="hist-r-finalizadas">—</strong></div>
+          </div>
+        </div>
+
+        <div class="btns-row" style="margin-top:16px;">
+          <button class="btn btn-secondary" style="color:var(--vm);border:1px solid rgba(231,76,60,.3);" onclick="limparHistorico()">🗑 Limpar histórico</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cobertura histórica -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo" style="font-size:17px;">📅 Cobertura Histórica</div>
+        <div class="card-sub">Dias com dados importados — coloridos por taxa de finalização</div>
+      </div>
+      <div class="card-body">
+        <div id="hist-cobertura">
+          <div style="color:var(--cinza4);font-size:13px;padding:8px 0;">Nenhum dado histórico importado ainda.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </main>
 
 <!-- ── MODAL BOLETIM ── -->
@@ -611,6 +677,7 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 <script src="js/boletim.js"></script>
 <script src="js/radar.js"></script>
 <script src="js/frota.js"></script>
+<script src="js/historico.js"></script>
 <script>
 // ── Navegação ──────────────────────────────────────────────────
 function navegar(pagina) {
@@ -619,6 +686,7 @@ function navegar(pagina) {
   document.getElementById('page-' + pagina).classList.add('ativo');
   event.currentTarget.classList.add('ativo');
   if (pagina === 'config') carregarConfigEscala();
+  if (pagina === 'historico') carregarCoberturaHistorico();
 }
 
 // ── Modais ─────────────────────────────────────────────────────

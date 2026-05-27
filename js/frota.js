@@ -365,6 +365,24 @@ function _picosPorDowETipo(dow, tipo) {
   return picos;
 }
 
+function _picosDeAgg(dowAgg) {
+  var entries = [];
+  Object.entries(dowAgg).forEach(function(e) {
+    var h = parseInt(e[0]);
+    var v = e[1];
+    if (h < 6 || !v.dias) return;
+    var avg = v.total / v.dias;
+    if (avg >= 1) entries.push({ hora: h, avg: avg });
+  });
+  if (!entries.length) return [];
+  entries.sort(function(a, b) { return a.hora - b.hora; });
+  var maxAvg = Math.max.apply(null, entries.map(function(e) { return e.avg; }));
+  return entries.map(function(e) {
+    var cor = e.avg >= maxAvg * 0.7 ? 'vermelho' : e.avg >= maxAvg * 0.35 ? 'amarelo' : 'verde';
+    return { hora: e.hora, cor: cor };
+  });
+}
+
 async function autoPreencherFrota() {
   var btn = document.getElementById('btn-auto-frota');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Lendo histórico...'; }
@@ -372,9 +390,13 @@ async function autoPreencherFrota() {
   try {
     if (!window.db) throw new Error('Firebase não conectado.');
 
-    // 1. Lê todas as métricas históricas
+    // 1. Lê métricas históricas e dados de agg horário em paralelo
+    var aggData = null;
     var metricasSnap = await window.db.ref('rotaads/metricas').once('value');
     var metricas     = metricasSnap.val() || {};
+    if (typeof lerHistoricoAgg === 'function') {
+      try { aggData = await lerHistoricoAgg(); } catch(e) {}
+    }
 
     // 2. Calcula média de corridas por dia da semana (0=Dom … 6=Sáb)
     var dowSum   = [0,0,0,0,0,0,0];
@@ -454,7 +476,8 @@ async function autoPreencherFrota() {
         if (cb) cb.checked = false;
       });
 
-      _picosPorDowETipo(dow, tipo).forEach(function(p) {
+      var picos = (aggData && aggData[dow]) ? _picosDeAgg(aggData[dow]) : _picosPorDowETipo(dow, tipo);
+      picos.forEach(function(p) {
         var cb  = document.getElementById('frota-h' + p.hora + '-' + i);
         var sel = document.getElementById('frota-hcor' + p.hora + '-' + i);
         if (cb)  cb.checked   = true;
@@ -511,7 +534,8 @@ async function autoPreencherFrota() {
     }
 
     var totalDadosHist = Object.keys(metricas).length;
-    mostrarToast('✅ Preenchido com base em ' + totalDadosHist + ' dias de histórico.', 'sucesso');
+    var usouAgg = aggData && Object.keys(aggData).length > 0;
+    mostrarToast('✅ Preenchido com ' + totalDadosHist + ' dias' + (usouAgg ? ' — picos reais do histórico' : '') + '.', 'sucesso');
 
   } catch(e) {
     console.error('[auto-preencher]', e);
