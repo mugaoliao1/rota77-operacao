@@ -163,6 +163,9 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
     <div class="nav-item" onclick="navegar('radar')">
       <span class="nav-icon">📊</span> Radar Semanal
     </div>
+    <div class="nav-item" onclick="navegar('frota')">
+      <span class="nav-icon">📋</span> Boletim da Frota
+    </div>
     <div class="nav-divider"></div>
     <div class="nav-item" onclick="navegar('config')">
       <span class="nav-icon">⚙️</span> Configurações
@@ -172,6 +175,7 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
     <a href="https://rota77-operacao.pages.dev/escala-atual.html" target="_blank">🔗 escala-atual.html</a>
     <a href="https://rota77-operacao.pages.dev/boletim-atual.html" target="_blank">🔗 boletim-atual.html</a>
     <a href="https://rota77-operacao.pages.dev/radar-atual.html" target="_blank">🔗 radar-atual.html</a>
+    <a href="https://rota77-operacao.pages.dev/boletim-frota-atual.html" target="_blank">🔗 boletim-frota-atual.html</a>
   </div>
 </aside>
 
@@ -404,7 +408,121 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
         <a href="https://rota77-operacao.pages.dev/escala-atual.html" target="_blank" style="color:var(--amarelo);font-size:13px;">🌙 rota77-operacao.pages.dev/escala-atual.html</a>
         <a href="https://rota77-operacao.pages.dev/boletim-atual.html" target="_blank" style="color:var(--amarelo);font-size:13px;">📰 rota77-operacao.pages.dev/boletim-atual.html</a>
         <a href="https://rota77-operacao.pages.dev/radar-atual.html" target="_blank" style="color:var(--amarelo);font-size:13px;">📊 rota77-operacao.pages.dev/radar-atual.html</a>
+        <a href="https://rota77-operacao.pages.dev/boletim-frota-atual.html" target="_blank" style="color:var(--amarelo);font-size:13px;">📋 rota77-operacao.pages.dev/boletim-frota-atual.html</a>
       </div>
+    </div>
+
+  </div>
+
+  <!-- ── BOLETIM DA FROTA ── -->
+  <div class="page" id="page-frota">
+
+    <!-- Período -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">📋 Boletim da Frota</div>
+        <div class="card-sub">Planejamento semanal para a equipe de motoristas</div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid" style="margin-bottom:12px;">
+          <div>
+            <label>Início da semana</label>
+            <input type="date" id="frota-data-inicio" onchange="gerarDiasFrota()">
+          </div>
+          <div>
+            <label>Fim da semana</label>
+            <input type="date" id="frota-data-fim" onchange="gerarDiasFrota()">
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="gerarDiasFrota()">🗓 Montar dias</button>
+      </div>
+    </div>
+
+    <!-- Dias (dinâmico) -->
+    <div id="frota-dias-container"></div>
+
+    <!-- Comunicado -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo" style="font-size:16px;">📣 Comunicado da Semana</div>
+      </div>
+      <div class="card-body">
+        <div style="margin-bottom:10px;">
+          <label>Título</label>
+          <input type="text" id="frota-comunicado-titulo" placeholder="ex: Atualização no aplicativo">
+        </div>
+        <div>
+          <label>Texto</label>
+          <textarea id="frota-comunicado-texto" placeholder="Texto do comunicado..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dica -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo" style="font-size:16px;">💡 Dica da Semana</div>
+      </div>
+      <div class="card-body">
+        <div style="margin-bottom:10px;">
+          <label>Título</label>
+          <input type="text" id="frota-dica-titulo" placeholder="ex: Avaliação do passageiro">
+        </div>
+        <div>
+          <label>Texto</label>
+          <textarea id="frota-dica-texto" placeholder="Texto da dica..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Destaques -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo" style="font-size:16px;">⭐ Destaques (até 3)</div>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="background:var(--azul-esc);border-radius:8px;padding:12px;">
+          <label style="margin-bottom:6px;display:block;">Destaque 1</label>
+          <div style="display:grid;grid-template-columns:48px 1fr;gap:8px;margin-bottom:8px;">
+            <div><label>Emoji</label><input type="text" id="frota-dest-emoji1" placeholder="🏆" style="text-align:center;font-size:18px;"></div>
+            <div><label>Nome do motorista</label><input type="text" id="frota-dest-nome1" placeholder="Nome completo"></div>
+          </div>
+          <label>Descrição</label>
+          <input type="text" id="frota-dest-desc1" placeholder="ex: Maior número de corridas na semana">
+        </div>
+        <div style="background:var(--azul-esc);border-radius:8px;padding:12px;">
+          <label style="margin-bottom:6px;display:block;">Destaque 2</label>
+          <div style="display:grid;grid-template-columns:48px 1fr;gap:8px;margin-bottom:8px;">
+            <div><label>Emoji</label><input type="text" id="frota-dest-emoji2" placeholder="🌟" style="text-align:center;font-size:18px;"></div>
+            <div><label>Nome do motorista</label><input type="text" id="frota-dest-nome2" placeholder="Nome completo"></div>
+          </div>
+          <label>Descrição</label>
+          <input type="text" id="frota-dest-desc2" placeholder="ex: Melhor avaliação da semana">
+        </div>
+        <div style="background:var(--azul-esc);border-radius:8px;padding:12px;">
+          <label style="margin-bottom:6px;display:block;">Destaque 3</label>
+          <div style="display:grid;grid-template-columns:48px 1fr;gap:8px;margin-bottom:8px;">
+            <div><label>Emoji</label><input type="text" id="frota-dest-emoji3" placeholder="👏" style="text-align:center;font-size:18px;"></div>
+            <div><label>Nome do motorista</label><input type="text" id="frota-dest-nome3" placeholder="Nome completo"></div>
+          </div>
+          <label>Descrição</label>
+          <input type="text" id="frota-dest-desc3" placeholder="ex: Zero cancelamentos na semana">
+        </div>
+      </div>
+    </div>
+
+    <!-- Fechamento -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo" style="font-size:16px;">🚗 Mensagem de Fechamento</div>
+      </div>
+      <div class="card-body">
+        <textarea id="frota-fechamento" rows="2" style="min-height:55px;" placeholder="Bom trabalho, equipe! 🚗✅"></textarea>
+      </div>
+    </div>
+
+    <div class="btns-row">
+      <button class="btn btn-primary" id="btn-gerar-frota" onclick="gerarFrota()" disabled>📋 Gerar Boletim da Frota</button>
     </div>
 
   </div>
@@ -449,6 +567,23 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
   </div>
 </div>
 
+<!-- ── MODAL BOLETIM DA FROTA ── -->
+<div class="modal-overlay" id="modal-frota">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-titulo">📋 Preview do Boletim da Frota</div>
+      <button class="modal-close" onclick="fecharModal('modal-frota')">✕</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="frota-iframe" src="about:blank"></iframe>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-frota')">Fechar</button>
+      <button class="btn btn-primary" id="btn-publicar-frota" onclick="publicarFrota()">🚀 Publicar Boletim da Frota</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="js/github.js"></script>
@@ -456,6 +591,7 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 <script src="js/escala.js"></script>
 <script src="js/boletim.js"></script>
 <script src="js/radar.js"></script>
+<script src="js/frota.js"></script>
 <script>
 // ── Navegação ──────────────────────────────────────────────────
 function navegar(pagina) {
