@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rota 77 — Painel da Operação</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul: #1a2f5e;
+  --azul-esc: #111f3e;
+  --amarelo: #F5A800;
+  --verde: #27ae60;
+  --vm: #e74c3c;
+  --cinza1: #1e2a45;
+  --cinza2: #253252;
+  --cinza3: #667;
+  --cinza4: #8899aa;
+  --branco: #fff;
+  --sidebar-w: 220px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Barlow',sans-serif;background:var(--azul-esc);color:var(--branco);min-height:100vh;display:flex;}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;background:var(--azul);
+  display:flex;flex-direction:column;padding:24px 0;min-height:100vh;position:fixed;top:0;left:0;bottom:0;z-index:100;
+}
+.sidebar-logo{padding:0 20px 24px;border-bottom:1px solid rgba(255,255,255,.08);}
+.logo-box{
+  background:var(--amarelo);border-radius:8px;padding:8px 12px;
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:900;color:var(--azul);line-height:1.1;
+  display:inline-block;margin-bottom:8px;
+}
+.sidebar-titulo{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;line-height:1.4;}
+.nav{flex:1;padding:16px 0;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);
+  cursor:pointer;transition:all .15s;border-left:3px solid transparent;
+}
+.nav-item:hover{color:var(--branco);background:rgba(255,255,255,.05);}
+.nav-item.ativo{color:var(--branco);background:rgba(245,168,0,.12);border-left-color:var(--amarelo);}
+.nav-icon{font-size:16px;flex-shrink:0;}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:8px 0;}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);}
+.sidebar-footer a{
+  display:block;font-size:10px;color:rgba(255,255,255,.3);text-decoration:none;
+  margin-bottom:4px;transition:color .15s;
+}
+.sidebar-footer a:hover{color:rgba(255,255,255,.7);}
+
+/* ── Main ── */
+.main{margin-left:var(--sidebar-w);flex:1;padding:32px;max-width:900px;}
+.page{display:none;}
+.page.ativo{display:block;}
+
+/* ── Cards ── */
+.card{background:var(--cinza1);border-radius:14px;border:1px solid var(--cinza2);margin-bottom:20px;}
+.card-header{padding:20px 24px 16px;border-bottom:1px solid var(--cinza2);}
+.card-titulo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--branco);margin-bottom:2px;}
+.card-sub{font-size:12px;color:var(--cinza4);}
+.card-body{padding:20px 24px;}
+
+/* ── Formulários ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;}
+label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza4);display:block;margin-bottom:5px;}
+input[type=text],input[type=date],input[type=number],input[type=password],select,textarea{
+  width:100%;background:var(--azul-esc);border:1px solid var(--cinza2);border-radius:8px;
+  padding:10px 12px;color:var(--branco);font-family:'Barlow',sans-serif;font-size:13px;outline:none;
+  transition:border-color .2s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--amarelo);}
+textarea{resize:vertical;min-height:80px;}
+select option{background:var(--azul-esc);}
+
+/* ── Botões ── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 18px;border-radius:8px;border:none;cursor:pointer;
+  font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;transition:all .15s;
+}
+.btn-primary{background:var(--amarelo);color:var(--azul);}
+.btn-primary:hover{background:#ffb800;}
+.btn-secondary{background:var(--cinza2);color:var(--branco);}
+.btn-secondary:hover{background:#2e3d60;}
+.btn-success{background:var(--verde);color:var(--branco);}
+.btn-success:hover{background:#219a52;}
+.btn-sm{padding:7px 13px;font-size:12px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btns-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+
+/* ── Drop zone ── */
+.drop-zone{
+  border:2px dashed var(--cinza2);border-radius:10px;padding:28px 20px;text-align:center;
+  cursor:pointer;transition:border-color .2s;
+}
+.drop-zone:hover,.drop-zone.over{border-color:var(--amarelo);}
+.drop-icon{font-size:28px;margin-bottom:8px;}
+.drop-texto{font-size:13px;color:var(--cinza4);}
+.drop-texto strong{color:var(--branco);}
+
+/* ── Info badge ── */
+.info-badge{font-size:11px;color:var(--cinza4);margin-top:10px;display:block;}
+
+/* ── Seção label ── */
+.secao-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--amarelo);margin-bottom:12px;}
+
+/* ── Ações radar ── */
+.acao-form{background:var(--azul-esc);border:1px solid var(--cinza2);border-radius:8px;padding:14px;margin-bottom:10px;}
+.acao-form-grid{display:grid;grid-template-columns:1fr 180px 100px;gap:10px;margin-top:10px;}
+.acao-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;color:var(--cinza4);margin-bottom:6px;}
+
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--azul);color:white;padding:12px 20px;border-radius:30px;
+  font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  opacity:0;transition:opacity .3s;z-index:9999;white-space:nowrap;
+}
+#toast.show{opacity:1;}
+#toast.sucesso{background:var(--verde);}
+#toast.erro{background:var(--vm);}
+
+/* ── Modal ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.modal-overlay.show{display:flex;}
+.modal{
+  background:var(--cinza1);border-radius:16px;border:1px solid var(--cinza2);
+  width:100%;max-width:700px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;
+}
+.modal-header{
+  padding:18px 20px;border-bottom:1px solid var(--cinza2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-titulo{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;}
+.modal-close{background:none;border:none;color:var(--cinza4);font-size:22px;cursor:pointer;line-height:1;}
+.modal-body{flex:1;overflow:auto;padding:20px;}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--cinza2);display:flex;gap:10px;justify-content:flex-end;}
+iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-box">ROTA<br>77</div>
+    <div class="sidebar-titulo">Painel da<br>Operação</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item ativo" onclick="navegar('escala')">
+      <span class="nav-icon">🌙</span> Escala
+    </div>
+    <div class="nav-item" onclick="navegar('boletim')">
+      <span class="nav-icon">📰</span> Boletim Diário
+    </div>
+    <div class="nav-item" onclick="navegar('radar')">
+      <span class="nav-icon">📊</span> Radar Semanal
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" onclick="navegar('config')">
+      <span class="nav-icon">⚙️</span> Configurações
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="https://rota77-operacao.pages.dev/escala-atual.html" target="_blank">🔗 escala-atual.html</a>
+    <a href="https://rota77-operacao.pages.dev/boletim-atual.html" target="_blank">🔗 boletim-atual.html</a>
+    <a href="https://rota77-operacao.pages.dev/radar-atual.html" target="_blank">🔗 radar-atual.html</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ── ESCALA ── -->
+  <div class="page ativo" id="page-escala">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">🌙 Escala da Madrugada</div>
+        <div class="card-sub">Gera a folha interativa para os motoristas se inscreverem</div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid" style="margin-bottom:12px;">
+          <div>
+            <label>Data de início</label>
+            <input type="date" id="escala-data-inicio">
+          </div>
+          <div>
+            <label>Data de fim</label>
+            <input type="date" id="escala-data-fim">
+          </div>
+        </div>
+        <div class="secao-label" style="margin-top:16px;">Vagas por turno</div>
+        <div class="form-grid-4">
+          <div>
+            <label>Padrão 00h–02h</label>
+            <input type="number" id="escala-vagas-p1" value="2" min="1" max="10">
+          </div>
+          <div>
+            <label>Padrão 02h–06h</label>
+            <input type="number" id="escala-vagas-p2" value="1" min="1" max="10">
+          </div>
+          <div>
+            <label>Intenso 00h–02h</label>
+            <input type="number" id="escala-vagas-i1" value="4" min="1" max="10">
+          </div>
+          <div>
+            <label>Intenso 02h–06h</label>
+            <input type="number" id="escala-vagas-i2" value="2" min="1" max="10">
+          </div>
+        </div>
+        <div class="btns-row">
+          <button class="btn btn-secondary" onclick="gerarEscala()">⬇️ Baixar HTML</button>
+          <button class="btn btn-primary" id="btn-publicar-escala" onclick="publicarEscala()">🚀 Publicar Escala</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOLETIM ── -->
+  <div class="page" id="page-boletim">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">📰 Boletim Diário</div>
+        <div class="card-sub">Importa CSV de corridas e gera o boletim do dia</div>
+      </div>
+      <div class="card-body">
+        <div class="drop-zone" id="boletim-drop"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="this.classList.remove('over');const f=event.dataTransfer.files[0];if(f&&f.name.endsWith('.csv'))processarCSVBoletim(f);else mostrarToast('⚠️ Arquivo .csv esperado','erro');event.preventDefault()">
+          <div class="drop-icon">📂</div>
+          <div class="drop-texto"><strong>Arraste o CSV aqui</strong> ou clique para selecionar</div>
+          <input type="file" accept=".csv" id="boletim-csv-input" style="display:none"
+            onchange="if(this.files[0])processarCSVBoletim(this.files[0])">
+        </div>
+        <script>document.getElementById('boletim-drop').addEventListener('click',function(e){if(e.target.tagName!=='INPUT')document.getElementById('boletim-csv-input').click();});</script>
+        <span class="info-badge" id="boletim-csv-info">Nenhum arquivo carregado.</span>
+
+        <div style="margin-top:16px;">
+          <label>Dia a gerar</label>
+          <select id="boletim-data-sel"><option value="">— carregue um CSV primeiro —</option></select>
+        </div>
+
+        <div class="btns-row">
+          <button class="btn btn-primary" id="btn-gerar-boletim" onclick="gerarBoletim()" disabled>📰 Gerar Boletim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RADAR ── -->
+  <div class="page" id="page-radar">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">📊 Radar Semanal</div>
+        <div class="card-sub">Multi-CSV — agrega vários dias e gera a análise semanal</div>
+      </div>
+      <div class="card-body">
+        <div class="drop-zone" id="radar-drop"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="this.classList.remove('over');processarCSVsRadar(event.dataTransfer.files);event.preventDefault()">
+          <div class="drop-icon">📂</div>
+          <div class="drop-texto"><strong>Arraste os CSVs aqui</strong> (múltiplos arquivos) ou clique para selecionar</div>
+          <input type="file" accept=".csv" multiple id="radar-csv-input" style="display:none"
+            onchange="if(this.files.length)processarCSVsRadar(this.files)">
+        </div>
+        <script>document.getElementById('radar-drop').addEventListener('click',function(e){if(e.target.tagName!=='INPUT')document.getElementById('radar-csv-input').click();});</script>
+        <span class="info-badge" id="radar-csv-info">Nenhum arquivo carregado.</span>
+
+        <div style="margin-top:20px;">
+          <label>Contexto da semana</label>
+          <textarea id="radar-contexto" placeholder="Descreva o contexto da semana: eventos, clima, novidades na operação..."></textarea>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label>Destaque</label>
+          <textarea id="radar-destaque" rows="2" placeholder="Destaque positivo da semana..." style="min-height:60px;"></textarea>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="secao-label">Ações da próxima semana</div>
+          ${[1,2,3].map(i => `
+          <div class="acao-form">
+            <div class="acao-num">Ação ${i}</div>
+            <input type="text" id="radar-acao${i}" placeholder="Descreva a ação...">
+            <div class="acao-form-grid">
+              <div>
+                <label>Responsável</label>
+                <input type="text" id="radar-resp${i}" placeholder="Nome ou equipe">
+              </div>
+              <div>
+                <label>Status</label>
+                <select id="radar-status${i}">
+                  <option value="⏳">⏳ Pendente</option>
+                  <option value="🔄">🔄 Em andamento</option>
+                  <option value="✅">✅ Concluída</option>
+                </select>
+              </div>
+            </div>
+          </div>`).join('')}
+        </div>
+
+        <div class="btns-row">
+          <button class="btn btn-primary" id="btn-gerar-radar" onclick="gerarRadar()" disabled>📊 Gerar Radar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONFIG ── -->
+  <div class="page" id="page-config">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">⚙️ Configurações</div>
+        <div class="card-sub">Token GitHub para publicar as páginas</div>
+      </div>
+      <div class="card-body">
+        <label>GitHub Personal Access Token (PAT)</label>
+        <input type="password" id="config-token" placeholder="ghp_...">
+        <p style="font-size:11px;color:var(--cinza4);margin-top:8px;line-height:1.5;">
+          O token precisa de permissão <strong>repo</strong> (Contents: read &amp; write) no repositório <strong>mugaoliao1/rota77-operacao</strong>.<br>
+          Gerado em: github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens.
+        </p>
+        <div class="btns-row">
+          <button class="btn btn-primary" onclick="salvarTokenConfig()">💾 Salvar token</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">🔗 Links publicados</div>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
+        <a href="https://rota77-operacao.pages.dev/escala-atual.html" target="_blank" style="color:var(--amarelo);font-size:13px;">🌙 rota77-operacao.pages.dev/escala-atual.html</a>
+        <a href="https://rota77-operacao.pages.dev/boletim-atual.html" target="_blank" style="color:var(--amarelo);font-size:13px;">📰 rota77-operacao.pages.dev/boletim-atual.html</a>
+        <a href="https://rota77-operacao.pages.dev/radar-atual.html" target="_blank" style="color:var(--amarelo);font-size:13px;">📊 rota77-operacao.pages.dev/radar-atual.html</a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── MODAL BOLETIM ── -->
+<div class="modal-overlay" id="modal-boletim">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-titulo">📰 Preview do Boletim</div>
+      <button class="modal-close" onclick="fecharModal('modal-boletim')">✕</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="boletim-iframe" src="about:blank"></iframe>
+      <div style="margin-top:14px;">
+        <label>Mensagem de fechamento</label>
+        <textarea id="boletim-fechamento" rows="2" style="min-height:50px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-boletim')">Fechar</button>
+      <button class="btn btn-primary" id="btn-publicar-boletim" onclick="publicarBoletim()">🚀 Publicar Boletim</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL RADAR ── -->
+<div class="modal-overlay" id="modal-radar">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-titulo">📊 Preview do Radar</div>
+      <button class="modal-close" onclick="fecharModal('modal-radar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="radar-iframe" src="about:blank"></iframe>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-radar')">Fechar</button>
+      <button class="btn btn-primary" id="btn-publicar-radar" onclick="publicarRadar()">🚀 Publicar Radar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/github.js"></script>
+<script src="js/csv.js"></script>
+<script src="js/escala.js"></script>
+<script src="js/boletim.js"></script>
+<script src="js/radar.js"></script>
+<script>
+// ── Navegação ──────────────────────────────────────────────────
+function navegar(pagina) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('ativo'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('ativo'));
+  document.getElementById('page-' + pagina).classList.add('ativo');
+  event.currentTarget.classList.add('ativo');
+  if (pagina === 'config') carregarConfigEscala();
+}
+
+// ── Modais ─────────────────────────────────────────────────────
+function abrirModal(id)  { document.getElementById(id).classList.add('show'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', function(e) { if (e.target === m) m.classList.remove('show'); });
+});
+
+// ── Toast ──────────────────────────────────────────────────────
+function mostrarToast(msg, tipo) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + (tipo || '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Init ───────────────────────────────────────────────────────
+(function() {
+  const token = getToken();
+  const el = document.getElementById('config-token');
+  if (el && token) el.value = token;
+})();
+</script>
+</body>
+</html>

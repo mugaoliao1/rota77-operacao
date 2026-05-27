@@ -1,0 +1,393 @@
+// ── Gerador de Escala da Madrugada ────────────────────────────
+
+function _lerFormEscala() {
+  var dataInicioVal = document.getElementById('escala-data-inicio').value;
+  var dataFimVal    = document.getElementById('escala-data-fim').value;
+  var vagP1 = parseInt(document.getElementById('escala-vagas-p1').value) || 2;
+  var vagP2 = parseInt(document.getElementById('escala-vagas-p2').value) || 1;
+  var vagI1 = parseInt(document.getElementById('escala-vagas-i1').value) || 4;
+  var vagI2 = parseInt(document.getElementById('escala-vagas-i2').value) || 2;
+
+  if (!dataInicioVal || !dataFimVal) {
+    mostrarToast('Preencha as datas de início e fim.', 'erro'); return null;
+  }
+  var inicio = new Date(dataInicioVal + 'T00:00:00');
+  var fim    = new Date(dataFimVal    + 'T00:00:00');
+  if (fim < inicio) { mostrarToast('Data fim deve ser ≥ data início.', 'erro'); return null; }
+
+  var MESES    = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var DIA_NOME  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  var DIA_SIGLA = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+  var DIA_ID    = ['dom','seg','ter','qua','qui','sex','sab'];
+
+  var semanaKey = 'semana_' +
+    String(inicio.getDate()).padStart(2,'0') + '_' + MESES[inicio.getMonth()] + '_' +
+    String(fim.getDate()).padStart(2,'0')    + '_' + MESES[fim.getMonth()]    + '_' + fim.getFullYear();
+
+  var escala = [];
+  var idCount = {};
+  var cur = new Date(inicio);
+  while (cur <= fim) {
+    var dow    = cur.getDay();
+    var baseId = DIA_ID[dow];
+    idCount[baseId] = (idCount[baseId] || 0) + 1;
+    var uid  = idCount[baseId] > 1 ? baseId + idCount[baseId] : baseId;
+    var tipo = (dow === 5 || dow === 6) ? 'intenso' : 'padrao';
+    var dd   = String(cur.getDate()).padStart(2,'0');
+    var mm   = String(cur.getMonth() + 1).padStart(2,'0');
+    escala.push({
+      id: uid, nome: DIA_NOME[dow], sigla: DIA_SIGLA[dow],
+      data: dd + '/' + mm, tipo: tipo,
+      turnos: [
+        { id: uid + '_00', titulo: '00h às 02h', icon: '🌃', vagas: tipo === 'intenso' ? vagI1 : vagP1 },
+        { id: uid + '_02', titulo: '02h às 06h', icon: '🌙', vagas: tipo === 'intenso' ? vagI2 : vagP2 }
+      ]
+    });
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  var primeiroDia = escala[0];
+  var ultimoDia   = escala[escala.length - 1];
+  var nomeC1 = primeiroDia.nome.replace('-feira', '');
+  var nomeCN = ultimoDia.nome.replace('-feira', '');
+  var badgeText = '📅 ' + nomeC1 + ' ' + primeiroDia.data + ' até ' + nomeCN + ' ' + ultimoDia.data;
+
+  var p1 = primeiroDia.data.split('/'), p2 = ultimoDia.data.split('/');
+  var fileName = 'escala_' + p1[0] + '_' + p1[1] + '_a_' + p2[0] + '_' + p2[1] + '.html';
+
+  return { semanaKey, escala, badgeText, fileName, html: _construirHtmlEscala(semanaKey, escala, badgeText) };
+}
+
+function gerarEscala() {
+  var r = _lerFormEscala();
+  if (!r) return;
+  var blob = new Blob([r.html], { type: 'text/html;charset=utf-8' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = r.fileName;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  mostrarToast('✅ Escala gerada com sucesso!', 'sucesso');
+}
+
+async function publicarEscala() {
+  var r = _lerFormEscala();
+  if (!r) return;
+
+  var btn = document.getElementById('btn-publicar-escala');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Publicando...'; }
+
+  try {
+    await publicarArquivo('escala-atual.html', r.html, 'escala: ' + r.badgeText.replace('📅 ', ''));
+    mostrarToast('✅ Publicado! Deploy em ~1 min', 'sucesso');
+  } catch (e) {
+    console.error('[escala/publicar]', e);
+    mostrarToast('❌ ' + e.message, 'erro');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Publicar Escala'; }
+  }
+}
+
+function carregarConfigEscala() {
+  var el = document.getElementById('config-token');
+  if (el) el.value = getToken();
+}
+
+function salvarTokenConfig() {
+  var token = document.getElementById('config-token').value.trim();
+  saveToken(token);
+  mostrarToast('✅ Token salvo!', 'sucesso');
+}
+
+// ── Gerador de HTML da escala ──────────────────────────────────
+function _construirHtmlEscala(semanaKey, escala, badgeText) {
+  var escalaJson = JSON.stringify(escala, null, 2);
+
+  var css = `  :root {
+    --azul: #1a2f5e;
+    --azul-escuro: #111f3e;
+    --amarelo: #F5A800;
+    --verde: #27ae60;
+    --vermelho: #e74c3c;
+    --cinza: #f4f6f9;
+    --cinza-texto: #555;
+    --branco: #ffffff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Barlow', sans-serif;
+    background:var(--azul-escuro);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:20px 16px;
+  }
+  .card { width:100%; max-width:480px; background:var(--branco); border-radius:20px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+  .header { background:var(--azul); padding:28px 24px 24px; position:relative; overflow:hidden; }
+  .header::before { content:''; position:absolute; top:-60px; right:-60px; width:220px; height:220px; background:rgba(245,168,0,0.1); border-radius:50%; }
+  .header-top { display:flex; align-items:center; gap:12px; margin-bottom:18px; position:relative; }
+  .logo-box { background:var(--amarelo); border-radius:8px; padding:6px 10px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:900; color:var(--azul); line-height:1.1; }
+  .logo-texto { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:2px; line-height:1.3; }
+  .header-eyebrow { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--amarelo); margin-bottom:8px; position:relative; }
+  .header-titulo { font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:900; color:var(--branco); line-height:1; margin-bottom:6px; position:relative; }
+  .header-titulo span { color:var(--amarelo); }
+  .header-sub { font-size:13px; color:rgba(255,255,255,0.5); position:relative; }
+  .semana-badge { display:inline-block; background:rgba(245,168,0,0.15); border:1px solid rgba(245,168,0,0.3); color:var(--amarelo); font-size:11px; font-weight:600; padding:5px 12px; border-radius:20px; margin-top:14px; position:relative; }
+  .status-bar { background:rgba(39,174,96,0.15); border:1px solid rgba(39,174,96,0.3); color:#a3e6c0; padding:6px 12px; border-radius:20px; font-size:11px; margin-top:10px; display:inline-flex; align-items:center; gap:6px; position:relative; }
+  .status-bar.offline { background:rgba(231,76,60,0.15); border-color:rgba(231,76,60,0.3); color:#f4a99e; }
+  .status-dot { width:8px; height:8px; background:#27ae60; border-radius:50%; animation:pulse 2s infinite; }
+  .status-bar.offline .status-dot { background:#e74c3c; animation:none; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .instrucoes { background:var(--cinza); padding:16px 24px; border-bottom:3px solid var(--amarelo); }
+  .instrucoes-texto { font-size:12px; color:var(--cinza-texto); line-height:1.6; }
+  .instrucoes-texto strong { color:var(--azul); }
+  .resumo { padding:14px 24px; border-bottom:1px solid #eee; }
+  .resumo-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .resumo-item { background:var(--cinza); border-radius:8px; padding:10px; text-align:center; border-top:3px solid var(--amarelo); }
+  .resumo-item.verde { border-top-color:var(--verde); }
+  .resumo-num { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:900; color:var(--azul); line-height:1; }
+  .resumo-num.verde { color:var(--verde); }
+  .resumo-label { font-size:9px; color:var(--cinza-texto); text-transform:uppercase; letter-spacing:0.5px; margin-top:3px; }
+  .dia-bloco { border-bottom:1px solid #eee; }
+  .dia-bloco:last-child { border-bottom:none; }
+  .dia-header { padding:14px 24px 10px; display:flex; align-items:center; justify-content:space-between; background:var(--cinza); }
+  .dia-header.intenso { background:#fff8e6; }
+  .dia-info { display:flex; align-items:center; gap:12px; }
+  .dia-circulo { width:42px; height:42px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--azul); color:white; flex-shrink:0; }
+  .dia-circulo.intenso { background:var(--amarelo); color:var(--azul); }
+  .dia-circulo.padrao-seg { background:#2980b9; color:white; }
+  .dia-circulo-nome { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900; line-height:1; }
+  .dia-circulo-data { font-size:9px; font-weight:600; line-height:1; margin-top:2px; opacity:0.8; }
+  .dia-nome-full { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:900; color:var(--azul); line-height:1; }
+  .dia-nome-sub { font-size:10px; color:var(--cinza-texto); margin-top:3px; }
+  .dia-tag { font-size:10px; font-weight:700; padding:4px 10px; border-radius:20px; background:var(--azul); color:white; }
+  .dia-tag.intenso { background:var(--amarelo); color:var(--azul); }
+  .turnos { padding:12px 24px 18px; }
+  .turno { background:white; border:1px solid #eee; border-radius:10px; padding:12px; margin-bottom:8px; }
+  .turno:last-child { margin-bottom:0; }
+  .turno-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:1px dashed #eee; }
+  .turno-horario { display:flex; align-items:center; gap:8px; }
+  .turno-icon { font-size:18px; }
+  .turno-titulo { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:900; color:var(--azul); }
+  .turno-vagas { font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; background:var(--cinza); color:var(--azul); }
+  .turno-vagas.completo { background:#e8f8f0; color:var(--verde); }
+  .vaga { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+  .vaga:last-child { border-bottom:none; }
+  .vaga-num { font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:900; color:#aaa; width:24px; text-align:center; flex-shrink:0; }
+  .vaga-input-wrap { flex:1; }
+  .vaga-input { width:100%; border:none; border-bottom:2px solid #ddd; padding:6px 4px; font-family:'Barlow',sans-serif; font-size:14px; font-weight:600; color:var(--azul); background:transparent; outline:none; transition:all 0.2s; }
+  .vaga-input:focus { border-bottom-color:var(--amarelo); }
+  .vaga-input.preenchida { border-bottom-color:var(--verde); color:var(--verde); }
+  .vaga-input::placeholder { color:#bbb; font-style:italic; font-weight:400; }
+  .vaga-btn-remover { background:none; border:none; color:#ccc; font-size:18px; cursor:pointer; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
+  .vaga-btn-remover:hover { background:#fdf0ef; color:var(--vermelho); }
+  .vaga-btn-remover.hidden { visibility:hidden; }
+  .fechamento { background:var(--azul); padding:22px 24px; text-align:center; position:relative; overflow:hidden; }
+  .fechamento::before { content:''; position:absolute; top:-30px; right:-30px; width:150px; height:150px; background:rgba(245,168,0,0.08); border-radius:50%; }
+  .fechamento-frase { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:var(--branco); line-height:1.2; margin-bottom:6px; position:relative; }
+  .fechamento-frase span { color:var(--amarelo); }
+  .fechamento-sub { font-size:11px; color:rgba(255,255,255,0.5); position:relative; }
+  .loading { text-align:center; padding:40px 30px; color:var(--cinza-texto); font-size:13px; }
+  .loading-spinner { display:inline-block; width:28px; height:28px; border:3px solid #eee; border-top:3px solid var(--amarelo); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:10px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:12px 20px; border-radius:30px; font-size:13px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,0.3); opacity:0; transition:opacity 0.3s; z-index:1000; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .toast.show { opacity:1; }
+  .toast.sucesso { background:var(--verde); }
+  .toast.erro { background:var(--vermelho); }`;
+
+  var bodyHtml = `<div class="card">
+  <div class="header">
+    <div class="header-top">
+      <div class="logo-box">ROTA<br>77</div>
+      <div class="logo-texto">Escala<br>da Madrugada</div>
+    </div>
+    <div class="header-eyebrow">🌙 Organização da equipe</div>
+    <div class="header-titulo">Madrugada<br><span>coberta.</span></div>
+    <div class="header-sub">Toque na vaga e escreva seu nome</div>
+    <div class="semana-badge">${badgeText}</div>
+    <br>
+    <div class="status-bar" id="status-conexao">
+      <div class="status-dot"></div>
+      <span id="status-texto">Conectando...</span>
+    </div>
+  </div>
+  <div class="instrucoes">
+    <div class="instrucoes-texto">
+      🎯 <strong>Toque na linha</strong> da vaga que vai cobrir e <strong>escreva seu nome</strong>. Salvo automaticamente — todos veem em tempo real.<br>
+      ⚠️ <strong>Uma vez escalado, é compromisso.</strong> Se precisar trocar, combine antes com outro motorista.
+    </div>
+  </div>
+  <div class="resumo">
+    <div class="resumo-grid">
+      <div class="resumo-item verde">
+        <div class="resumo-num verde" id="vagas-preenchidas">0</div>
+        <div class="resumo-label">Preenchidas</div>
+      </div>
+      <div class="resumo-item">
+        <div class="resumo-num" id="vagas-restantes">—</div>
+        <div class="resumo-label">Disponíveis</div>
+      </div>
+      <div class="resumo-item">
+        <div class="resumo-num" id="pct-completo">0%</div>
+        <div class="resumo-label">Da escala</div>
+      </div>
+    </div>
+  </div>
+  <div id="dias-container">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <div>Carregando escala...</div>
+    </div>
+  </div>
+  <div class="fechamento">
+    <div class="fechamento-frase">Quem se inscreve,<br><span>cobre a vaga.</span></div>
+    <div class="fechamento-sub">🚗 Bom trabalho a todos! ✅</div>
+  </div>
+</div>
+<div class="toast" id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-msg">Salvo!</span>
+</div>`;
+
+  var inlineJs = [
+    'const firebaseConfig = {',
+    '  apiKey: "AIzaSyCwnXvOiYfz6rqdYLwq6nXrUPlyo0HFbJQ",',
+    '  authDomain: "rota-77-escala.firebaseapp.com",',
+    '  databaseURL: "https://rota-77-escala-default-rtdb.firebaseio.com",',
+    '  projectId: "rota-77-escala",',
+    '  storageBucket: "rota-77-escala.firebasestorage.app",',
+    '  messagingSenderId: "978777812548",',
+    '  appId: "1:978777812548:web:8659bab867fae764c29611"',
+    '};',
+    'firebase.initializeApp(firebaseConfig);',
+    'const db = firebase.database();',
+    'const SEMANA_KEY = "' + semanaKey + '";',
+    'const escalaRef = db.ref("escalas/" + SEMANA_KEY);',
+    'const escala = ' + escalaJson + ';',
+    'let dadosEscala = {};',
+    '',
+    'function totalVagas() { return escala.reduce((s,d)=>s+d.turnos.reduce((ss,t)=>ss+t.vagas,0),0); }',
+    '',
+    'function renderizarEscala() {',
+    '  const container = document.getElementById("dias-container");',
+    '  let html = "";',
+    '  escala.forEach(dia => {',
+    '    const totalDia = dia.turnos.reduce((s,t)=>s+t.vagas,0);',
+    '    const hc = dia.tipo==="intenso" ? "intenso" : "";',
+    '    const cc = dia.tipo==="intenso" ? "intenso" : dia.id==="seg" ? "padrao-seg" : "";',
+    '    const tc = dia.tipo==="intenso" ? "intenso" : "";',
+    '    const tl = dia.tipo==="intenso" ? "🔥 Reforço" : "Padrão";',
+    '    const sub = dia.tipo==="intenso" ? "vagas — noite movimentada" : "vagas no total";',
+    '    html += \'<div class="dia-bloco"><div class="dia-header \'+hc+\'"><div class="dia-info">\';',
+    '    html += \'<div class="dia-circulo \'+cc+\'"><div class="dia-circulo-nome">\'+dia.sigla+\'</div><div class="dia-circulo-data">\'+dia.data+\'</div></div><div>\';',
+    '    html += \'<div class="dia-nome-full">\'+dia.nome+\'</div><div class="dia-nome-sub">\'+totalDia+\' \'+sub+\'</div></div></div>\';',
+    '    html += \'<div class="dia-tag \'+tc+\'">\'+tl+\'</div></div><div class="turnos">\';',
+    '    dia.turnos.forEach(turno => {',
+    '      const dados = dadosEscala[turno.id] || [];',
+    '      const preenchidas = dados.filter(n=>n&&n.trim()).length;',
+    '      const completo = preenchidas >= turno.vagas;',
+    '      html += \'<div class="turno"><div class="turno-header"><div class="turno-horario">\';',
+    '      html += \'<span class="turno-icon">\'+turno.icon+\'</span><span class="turno-titulo">\'+turno.titulo+\'</span></div>\';',
+    '      html += \'<span class="turno-vagas \' + (completo?"completo":"") + \'">\'+preenchidas+"/"+turno.vagas+" "+(completo?"✅":"vagas")+\'</span></div>\';',
+    '      for(let i=0;i<turno.vagas;i++){',
+    '        const v=dados[i]||""; const esc=v.replace(/"/g,"&quot;");',
+    '        html+=\'<div class="vaga"><div class="vaga-num">\' + (i+1) + \'</div><div class="vaga-input-wrap">\';',
+    '        html+=\'<input type="text" class="vaga-input \' + (v?"preenchida":"") + \'" placeholder="Toque e escreva seu nome..." value="\' + esc + \'" data-turno="\' + turno.id + \'" data-vaga="\' + i + \'"/></div>\';',
+    '        html+=\'<button class="vaga-btn-remover \' + (v?"":"hidden") + \'" data-remover-turno="\' + turno.id + \'" data-remover-vaga="\' + i + \'">✕</button></div>\';',
+    '      }',
+    '      html += \'</div>\';',
+    '    });',
+    '    html += \'</div></div>\';',
+    '  });',
+    '  container.innerHTML = html;',
+    '  atualizarContadores();',
+    '  ligarEventos();',
+    '}',
+    '',
+    'function ligarEventos(){',
+    '  document.querySelectorAll(".vaga-input").forEach(input=>{',
+    '    input.addEventListener("input",()=>atualizarVisual(input));',
+    '    input.addEventListener("blur",()=>salvar(input));',
+    '    input.addEventListener("keydown",e=>{if(e.key==="Enter")input.blur();});',
+    '  });',
+    '  document.querySelectorAll(".vaga-btn-remover").forEach(btn=>{',
+    '    btn.addEventListener("click",()=>remover(btn.dataset.removerTurno,parseInt(btn.dataset.removerVaga)));',
+    '  });',
+    '}',
+    '',
+    'function atualizarVisual(input){',
+    '  const v=input.value.trim();',
+    '  const btn=input.closest(".vaga").querySelector(".vaga-btn-remover");',
+    '  input.classList.toggle("preenchida",!!v); btn.classList.toggle("hidden",!v);',
+    '}',
+    '',
+    'async function salvar(input){',
+    '  const turnoId=input.dataset.turno; const vagaIdx=parseInt(input.dataset.vaga); const valor=input.value.trim();',
+    '  if(!dadosEscala[turnoId])dadosEscala[turnoId]=[];',
+    '  dadosEscala[turnoId][vagaIdx]=valor;',
+    '  try{',
+    '    await db.ref("escalas/"+SEMANA_KEY+"/"+turnoId+"/"+vagaIdx).set(valor||null);',
+    '    mostrarToast("✅",valor?valor+" escalado!":"Vaga liberada","sucesso");',
+    '  }catch(err){mostrarToast("⚠️","Erro ao salvar","erro");}',
+    '}',
+    '',
+    'async function remover(turnoId,vagaIdx){',
+    '  if(!confirm("Remover seu nome desta vaga?"))return;',
+    '  try{await db.ref("escalas/"+SEMANA_KEY+"/"+turnoId+"/"+vagaIdx).set(null);}',
+    '  catch(err){mostrarToast("⚠️","Erro","erro");}',
+    '}',
+    '',
+    'function atualizarContadores(){',
+    '  const total=totalVagas(); let preenchidas=0;',
+    '  escala.forEach(dia=>dia.turnos.forEach(turno=>{ preenchidas+=(dadosEscala[turno.id]||[]).filter(n=>n&&n.trim()).length; }));',
+    '  document.getElementById("vagas-preenchidas").textContent=preenchidas;',
+    '  document.getElementById("vagas-restantes").textContent=total-preenchidas;',
+    '  document.getElementById("pct-completo").textContent=Math.round(preenchidas/total*100)+"%";',
+    '}',
+    '',
+    'function mostrarToast(icone,msg,classe){',
+    '  const t=document.getElementById("toast");',
+    '  document.getElementById("toast-icon").textContent=icone;',
+    '  document.getElementById("toast-msg").textContent=msg;',
+    '  t.className="toast show "+classe;',
+    '  setTimeout(()=>t.classList.remove("show"),2500);',
+    '}',
+    '',
+    'function atualizarStatus(online){',
+    '  const bar=document.getElementById("status-conexao");',
+    '  const txt=document.getElementById("status-texto");',
+    '  bar.className=online?"status-bar":"status-bar offline";',
+    '  txt.textContent=online?"Atualização em tempo real ativa":"Sem conexão — verifique internet";',
+    '}',
+    '',
+    'escalaRef.on("value",snap=>{',
+    '  const f=document.activeElement;',
+    '  const tf=f&&f.dataset&&f.dataset.turno; const vf=f&&f.dataset&&f.dataset.vaga; const val=f&&f.value;',
+    '  dadosEscala=snap.val()||{};',
+    '  renderizarEscala(); atualizarStatus(true);',
+    '  if(tf&&vf!==undefined){',
+    '    const q=\'[data-turno="\'+tf+\'"][data-vaga="\'+vf+\'"]\';',
+    '    const el=document.querySelector(q);',
+    '    if(el){el.focus();if(val!==undefined)el.value=val;}',
+    '  }',
+    '},err=>{console.error(err);atualizarStatus(false);});',
+    '',
+    'db.ref(".info/connected").on("value",snap=>atualizarStatus(snap.val()===true));'
+  ].join('\n');
+
+  return '<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n' +
+    '<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+    '<title>Escala da Madrugada — Rota 77</title>\n' +
+    '<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">\n' +
+    '<style>\n' + css + '\n</style>\n</head>\n<body>\n' +
+    bodyHtml + '\n' +
+    '<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>\n' +
+    '<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"><\/script>\n' +
+    '<script>\n' + inlineJs + '\n<\/script>\n' +
+    '</body>\n</html>';
+}
+
+window.gerarEscala      = gerarEscala;
+window.publicarEscala   = publicarEscala;
+window.salvarTokenConfig = salvarTokenConfig;
