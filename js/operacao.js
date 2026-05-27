@@ -297,7 +297,8 @@ function _renderizarResultados(a) {
     _opRenderTopMotivos(a.topMotivos) +
     _opRenderMacaneta(a.macaneta) +
     _opRenderResumo(a.resumo) +
-    _opRenderPayload(a.payloadIA);
+    _opRenderPayload(a.payloadIA) +
+    (typeof _opRenderBotaoSalvar === 'function' ? _opRenderBotaoSalvar() : '');
 }
 
 function _opKpiBox(val, label, bordaCor) {

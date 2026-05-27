@@ -166,6 +166,9 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
     <div class="nav-item" onclick="navegar('operacao')">
       <span class="nav-icon">🔍</span> Operação Rota 77
     </div>
+    <div class="nav-item" onclick="navegar('op-historico')">
+      <span class="nav-icon">📜</span> Histórico Op.
+    </div>
     <div class="nav-item" onclick="navegar('frota')">
       <span class="nav-icon">📋</span> Boletim da Frota
     </div>
@@ -467,6 +470,29 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 
   </div>
 
+  <!-- ── HISTÓRICO OPERACIONAL ── -->
+  <div class="page" id="page-op-historico">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">📜 Histórico Operacional</div>
+        <div class="card-sub">Snapshots de análises anteriores · comparação entre períodos</div>
+      </div>
+      <div class="card-body">
+        <div class="btns-row">
+          <button class="btn btn-secondary btn-sm" onclick="exportarBackupOp()">⬇️ Exportar backup</button>
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;">
+            ⬆️ Importar backup
+            <input type="file" accept=".json" style="display:none" onchange="importarBackupOp(this.files[0]);this.value=''">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="op-hist-corpo"></div>
+
+  </div>
+
   <!-- ── BOLETIM DA FROTA ── -->
   <div class="page" id="page-frota">
 
@@ -729,6 +755,7 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 <script src="js/frota.js"></script>
 <script src="js/historico.js"></script>
 <script src="js/operacao.js"></script>
+<script src="js/operacao-historico.js"></script>
 <script>
 // ── Navegação ──────────────────────────────────────────────────
 function navegar(pagina) {
@@ -738,6 +765,7 @@ function navegar(pagina) {
   event.currentTarget.classList.add('ativo');
   if (pagina === 'config') carregarConfigEscala();
   if (pagina === 'historico') carregarCoberturaHistorico();
+  if (pagina === 'op-historico') carregarPaginaHistoricoOp();
 }
 
 // ── Modais ─────────────────────────────────────────────────────
