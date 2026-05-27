@@ -1,7 +1,71 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8"><title>Boletim — Rota 77</title>
-<style>body{font-family:sans-serif;background:#111f3e;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;}h1{color:#F5A800;}p{color:#8899aa;margin-top:8px;}</style>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boletim Diário — Rota 77</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --azul:#1a2f5e; --azul-escuro:#111f3e; --amarelo:#F5A800; --verde:#27ae60; --vermelho:#e74c3c; --cinza:#f4f6f9; --cinza-texto:#666; --branco:#ffffff; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Barlow',sans-serif;background:var(--azul-escuro);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 16px;}
+  .card{width:100%;max-width:420px;background:var(--branco);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);}
+  .header{background:var(--azul);padding:24px 24px 20px;position:relative;overflow:hidden;}
+  .header::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:rgba(245,168,0,0.1);border-radius:50%;}
+  .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;}
+  .logo-box{background:var(--amarelo);border-radius:8px;padding:6px 10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:900;color:var(--azul);line-height:1.1;}
+  .data-pill{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;}
+  .header-titulo{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--amarelo);margin-bottom:4px;position:relative;}
+  .header-dia{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--branco);line-height:1;position:relative;}
+  .secao{padding:18px 20px;border-bottom:1px solid #eee;}
+  .secao:last-child{border-bottom:none;}
+  .secao-label{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--amarelo);margin-bottom:12px;}
+  .taxas-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .taxa-box{background:var(--cinza);border-radius:10px;padding:14px;text-align:center;border-left:4px solid var(--amarelo);}
+  .taxa-box.verde{border-left-color:var(--verde);}
+  .taxa-box.vermelho{border-left-color:var(--vermelho);}
+  .taxa-label{font-size:10px;color:var(--cinza-texto);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+  .taxa-valor{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;line-height:1;color:var(--azul);}
+  .taxa-valor.verde{color:var(--verde);}
+  .taxa-valor.vermelho{color:var(--vermelho);}
+  .taxa-sub{font-size:10px;color:var(--cinza-texto);margin-top:3px;}
+  .info-box{background:#e8eef8;border-radius:8px;padding:10px 14px;font-size:12px;color:var(--azul);margin-top:12px;}
+  .cancel-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;}
+  .cancel-row:last-child{border-bottom:none;}
+  .cancel-pos{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:#ddd;width:20px;flex-shrink:0;}
+  .cancel-motivo{flex:1;font-size:12px;color:#444;}
+  .cancel-qtd{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--amarelo);}
+  .horarios-wrap{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;}
+  .horario-tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;}
+  .tag-alto{background:#fdf0ef;color:var(--vermelho);}
+  .tag-medio{background:#fff8e6;color:#b7800a;}
+  .top-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;margin-bottom:6px;background:var(--cinza);}
+  .top-item:last-child{margin-bottom:0;}
+  .top-item.primeiro{background:#fff8e6;}
+  .top-emoji{font-size:20px;flex-shrink:0;}
+  .top-nome{flex:1;font-size:12px;font-weight:600;color:var(--azul);line-height:1.3;}
+  .top-num{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--azul);text-align:right;}
+  .top-num small{display:block;font-size:9px;font-weight:400;color:var(--cinza-texto);line-height:1;}
+  .destaque-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+  .destaque-item:last-child{border-bottom:none;}
+  .destaque-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+  .destaque-tipo{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cinza-texto);margin-bottom:3px;}
+  .destaque-nome{font-size:13px;font-weight:700;color:var(--azul);margin-bottom:1px;}
+  .destaque-detalhe{font-size:11px;color:var(--cinza-texto);}
+  .destaque-detalhe strong{color:var(--azul);}
+  .fechamento{background:var(--azul);padding:18px 20px;display:flex;align-items:center;gap:12px;}
+  .fechamento-emoji{font-size:24px;flex-shrink:0;}
+  .fechamento-texto{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;}
+</style>
 </head>
-<body><div><h1>📰 Boletim Diário</h1><p>Nenhum boletim publicado ainda.<br>Use o Painel da Operação para publicar.</p></div></body>
+<body>
+<div class="card">
+<div class="header"><div class="header-top"><div class="logo-box">ROTA<br>77</div><div class="data-pill">26 de maio de 2026</div></div><div class="header-titulo">Boletim Diário</div><div class="header-dia">Terça-feira</div></div>
+<div class="secao"><div class="secao-label">Resultado do Dia</div><div class="taxas-grid"><div class="taxa-box verde"><div class="taxa-label">Taxa de finalização</div><div class="taxa-valor verde">89,7%</div></div><div class="taxa-box verde"><div class="taxa-label">Cancel. real (2h)</div><div class="taxa-valor verde">3,3%</div><div class="taxa-sub">22 cancelamentos</div></div><div class="taxa-box vermelho"><div class="taxa-label">Cancel. total</div><div class="taxa-valor vermelho">10,1%</div><div class="taxa-sub">67 corridas</div></div><div class="taxa-box"><div class="taxa-label">Não atendidas</div><div class="taxa-valor">0,2%</div><div class="taxa-sub">1 chamadas</div></div></div><div class="info-box"><strong>45 passageiros</strong> rechamaram em até 2h e finalizaram.</div></div>
+<div class="secao"><div class="secao-label">Cancelamentos Reais — Top Motivos</div><div class="cancel-row"><div class="cancel-pos">1</div><div class="cancel-motivo">⏱️ Tempo de espera</div><div class="cancel-qtd">10</div></div><div class="cancel-row"><div class="cancel-pos">2</div><div class="cancel-motivo">📅 Mudança de planos</div><div class="cancel-qtd">6</div></div><div class="cancel-row"><div class="cancel-pos">3</div><div class="cancel-motivo">📋 Outros</div><div class="cancel-qtd">4</div></div><div class="cancel-row"><div class="cancel-pos">4</div><div class="cancel-motivo">📋 Motorista não está vindo</div><div class="cancel-qtd">1</div></div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cinza-texto);margin-top:12px;margin-bottom:6px;">Horários com mais cancelamentos</div><div class="horarios-wrap"><span class="horario-tag tag-alto">7h — 3</span><span class="horario-tag tag-alto">9h — 3</span><span class="horario-tag tag-medio">22h — 3</span><span class="horario-tag tag-medio">13h — 2</span><span class="horario-tag tag-medio">16h — 2</span></div></div>
+<div class="secao"><div class="secao-label">Top 3 — Corridas Finalizadas</div><div class="top-item primeiro"><div class="top-emoji">🥇</div><div class="top-nome">Elizandro Burgel Lopes</div><div class="top-num">40<small>corridas</small></div></div><div class="top-item "><div class="top-emoji">🥈</div><div class="top-nome">Gabriel Da Paixão Quadro</div><div class="top-num">35<small>corridas</small></div></div><div class="top-item "><div class="top-emoji">🥉</div><div class="top-nome">Augusto Figueiredo De Souza</div><div class="top-num">34<small>corridas</small></div></div></div>
+<div class="secao"><div class="secao-label">Destaques</div><div class="destaque-item"><div class="destaque-icon">🌙</div><div><div class="destaque-tipo">Madrugada (00h–05h)</div><div class="destaque-nome">Gabriel Da Paixão Quadro</div><div class="destaque-detalhe"><strong>6 corridas</strong> nas primeiras horas do dia</div></div></div><div class="destaque-item"><div class="destaque-icon">⚡</div><div><div class="destaque-tipo">Horário Crítico (07h–10h e 16h–20h)</div><div class="destaque-nome">Elizandro Burgel Lopes</div><div class="destaque-detalhe"><strong>23 corridas</strong> nos horários de pico</div></div></div><div class="destaque-item"><div class="destaque-icon">⚡</div><div><div class="destaque-tipo">Horário Crítico (07h–10h e 16h–20h)</div><div class="destaque-nome">José Alexandre Viana</div><div class="destaque-detalhe"><strong>20 corridas</strong> nos horários de pico</div></div></div><div class="destaque-item"><div class="destaque-icon">🕐</div><div><div class="destaque-tipo">Constância — horas distintas</div><div class="destaque-nome">José Alexandre Viana</div><div class="destaque-detalhe"><strong>13 horas distintas</strong> com corridas finalizadas</div></div></div><div class="destaque-item"><div class="destaque-icon">🕐</div><div><div class="destaque-tipo">Constância — horas distintas</div><div class="destaque-nome">Gabriel Da Paixão Quadro · Elizandro Burgel Lopes · Paulo Saucedo</div><div class="destaque-detalhe"><strong>13 horas distintas</strong> cada</div></div></div></div>
+<div class="fechamento"><div class="fechamento-emoji">🚗</div><div class="fechamento-texto">Bom trabalho a todos! ✅</div></div>
+</div>
+</body>
 </html>
