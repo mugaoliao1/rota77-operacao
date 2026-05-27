@@ -84,7 +84,11 @@ function gerarDiasFrota() {
 
   container.innerHTML = html || '<p style="color:var(--cinza4);font-size:13px;">Selecione as datas acima.</p>';
   container.dataset.numDias = idx;
-  if (idx > 0) document.getElementById('btn-gerar-frota').disabled = false;
+  if (idx > 0) {
+    document.getElementById('btn-gerar-frota').disabled  = false;
+    var btnAuto = document.getElementById('btn-auto-frota');
+    if (btnAuto) btnAuto.disabled = false;
+  }
 }
 
 function atualizarCirculoFrota(idx) {
@@ -328,7 +332,197 @@ body{font-family:'Barlow',sans-serif;background:var(--azul-esc);min-height:100vh
     '</div>\n</body>\n</html>';
 }
 
-window.gerarDiasFrota       = gerarDiasFrota;
+// ── Auto-preenchimento com dados históricos do Firebase ────────
+function _dowDeData(isoDate) {
+  var p = isoDate.split('-');
+  return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2])).getDay();
+}
+
+function _picosPorDowETipo(dow, tipo) {
+  // Padrões base de pico — ajustados por tipo do dia
+  var picos = [];
+  var manha = tipo === 'forte' ? 'vermelho' : 'amarelo';
+  var tarde  = tipo === 'forte' ? 'vermelho' : 'amarelo';
+  var leve   = tipo === 'forte' ? 'amarelo'  : 'verde';
+
+  // Manhã (rush)
+  picos.push({ hora: 7, cor: leve }, { hora: 8, cor: manha }, { hora: 9, cor: leve });
+  // Almoço
+  picos.push({ hora: 12, cor: leve });
+  // Tarde/noite (rush)
+  picos.push({ hora: 17, cor: leve }, { hora: 18, cor: tarde }, { hora: 19, cor: leve });
+
+  // Sexta e Sábado: adiciona noite
+  if (dow === 5 || dow === 6) {
+    picos.push({ hora: 20, cor: leve }, { hora: 21, cor: manha }, { hora: 22, cor: tarde }, { hora: 23, cor: leve });
+  }
+
+  // Dia de atenção: reforça horários críticos
+  if (tipo === 'atencao') {
+    picos.forEach(function(p) { if (p.cor === 'verde') p.cor = 'amarelo'; });
+  }
+
+  return picos;
+}
+
+async function autoPreencherFrota() {
+  var btn = document.getElementById('btn-auto-frota');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Lendo histórico...'; }
+
+  try {
+    if (!window.db) throw new Error('Firebase não conectado.');
+
+    // 1. Lê todas as métricas históricas
+    var metricasSnap = await window.db.ref('rotaads/metricas').once('value');
+    var metricas     = metricasSnap.val() || {};
+
+    // 2. Calcula média de corridas por dia da semana (0=Dom … 6=Sáb)
+    var dowSum   = [0,0,0,0,0,0,0];
+    var dowCount = [0,0,0,0,0,0,0];
+    Object.entries(metricas).forEach(function(entry) {
+      var dow = _dowDeData(entry[0]);
+      dowSum[dow]   += entry[1].corridas || 0;
+      dowCount[dow] += 1;
+    });
+    var dowAvg = dowSum.map(function(s, i) { return dowCount[i] > 0 ? s / dowCount[i] : 0; });
+    var totalDias   = dowCount.reduce(function(a,b){return a+b;}, 0);
+    var overallAvg  = totalDias > 0
+      ? dowSum.reduce(function(a,b){return a+b;},0) / totalDias
+      : 0;
+
+    // 3. Lê metricasMotoristas dos últimos 7 dias para destaques
+    var hoje = new Date();
+    var ultimas7 = [];
+    for (var d = 1; d <= 7; d++) {
+      var dt = new Date(hoje);
+      dt.setDate(dt.getDate() - d);
+      var mm = String(dt.getMonth()+1).padStart(2,'0');
+      var dd = String(dt.getDate()).padStart(2,'0');
+      ultimas7.push(dt.getFullYear() + '-' + mm + '-' + dd);
+    }
+
+    var motSnaps = await Promise.all(
+      ultimas7.map(function(data) {
+        return window.db.ref('rotaads/metricasMotoristas/' + data).once('value');
+      })
+    );
+
+    // Agrega corridas e dias ativos por motorista
+    var motTotais = {};
+    motSnaps.forEach(function(snap) {
+      var val = snap.val();
+      if (!val) return;
+      Object.values(val).forEach(function(m) {
+        if (!m || !m.nome) return;
+        if (!motTotais[m.nome]) motTotais[m.nome] = { corridas: 0, dias: 0 };
+        motTotais[m.nome].corridas += m.corridas || 0;
+        motTotais[m.nome].dias     += 1;
+      });
+    });
+
+    var top3 = Object.entries(motTotais)
+      .sort(function(a,b){ return b[1].corridas - a[1].corridas; })
+      .slice(0, 3);
+
+    // Motorista mais constante (mais dias ativos, desempate por corridas)
+    var constancia = Object.entries(motTotais)
+      .sort(function(a,b){ return b[1].dias - a[1].dias || b[1].corridas - a[1].corridas; });
+
+    // 4. Preenche tipo e horários de pico de cada dia
+    var numDias = parseInt(document.getElementById('frota-dias-container').dataset.numDias || 0);
+    for (var i = 0; i < numDias; i++) {
+      var dataVal = document.getElementById('frota-data-' + i).value;
+      var dow     = _dowDeData(dataVal);
+      var avg     = dowAvg[dow];
+      var tipo;
+      if (overallAvg === 0 || avg === 0) {
+        tipo = 'normal';
+      } else if (avg >= overallAvg * 1.25) {
+        tipo = 'forte';
+      } else if (avg >= overallAvg * 1.05) {
+        tipo = 'atencao';
+      } else {
+        tipo = 'normal';
+      }
+
+      var tipoEl = document.getElementById('frota-tipo-' + i);
+      if (tipoEl) { tipoEl.value = tipo; atualizarCirculoFrota(i); }
+
+      // Limpa checkboxes existentes e marca os novos picos
+      _F_HORAS.forEach(function(h) {
+        var cb = document.getElementById('frota-h' + h + '-' + i);
+        if (cb) cb.checked = false;
+      });
+
+      _picosPorDowETipo(dow, tipo).forEach(function(p) {
+        var cb  = document.getElementById('frota-h' + p.hora + '-' + i);
+        var sel = document.getElementById('frota-hcor' + p.hora + '-' + i);
+        if (cb)  cb.checked   = true;
+        if (sel) sel.value    = p.cor;
+      });
+    }
+
+    // 5. Preenche destaques (só se campo estiver vazio)
+    var emojis = ['🏆','🌟','👏'];
+    top3.forEach(function(entry, idx) {
+      var n = idx + 1;
+      var nomeEl  = document.getElementById('frota-dest-nome' + n);
+      var emojiEl = document.getElementById('frota-dest-emoji' + n);
+      var descEl  = document.getElementById('frota-dest-desc' + n);
+      if (nomeEl && !nomeEl.value) {
+        nomeEl.value  = entry[0];
+        if (emojiEl) emojiEl.value = emojis[idx];
+        if (descEl)  descEl.value  = entry[1].corridas + ' corridas em ' + entry[1].dias + ' dia(s) — top ' + n + ' da semana';
+      }
+    });
+
+    // Destaque de constância (se ainda há slot livre)
+    if (constancia.length && constancia[0][0] !== (top3[0] && top3[0][0])) {
+      for (var slot = 1; slot <= 3; slot++) {
+        var nomeEl2 = document.getElementById('frota-dest-nome' + slot);
+        if (nomeEl2 && !nomeEl2.value) {
+          nomeEl2.value = constancia[0][0];
+          var emojiEl2 = document.getElementById('frota-dest-emoji' + slot);
+          var descEl2  = document.getElementById('frota-dest-desc' + slot);
+          if (emojiEl2) emojiEl2.value = '🕐';
+          if (descEl2)  descEl2.value  = constancia[0][1].dias + ' dias ativo — constância na semana';
+          break;
+        }
+      }
+    }
+
+    // 6. Comunicado: identifica dia da semana com maior volume histórico
+    var DOW_PT = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+    var busiestDow = dowAvg.reduce(function(best, avg, i) {
+      return avg > dowAvg[best] ? i : best;
+    }, 1); // começa em Segunda por padrão
+
+    var comunicadoTitulo = document.getElementById('frota-comunicado-titulo');
+    var comunicadoTexto  = document.getElementById('frota-comunicado-texto');
+    if (comunicadoTitulo && !comunicadoTitulo.value) {
+      comunicadoTitulo.value = 'Atenção: ' + DOW_PT[busiestDow] + '-feira é o dia mais movimentado';
+    }
+    if (comunicadoTexto && !comunicadoTexto.value) {
+      var mediaDia = Math.round(dowAvg[busiestDow]);
+      comunicadoTexto.value =
+        'Com base no histórico de corridas, a ' + DOW_PT[busiestDow] + '-feira concentra o maior volume ' +
+        'da semana (média de ' + mediaDia + ' corridas/dia). Fique atento ao app nos horários de pico ' +
+        'e mantenha-se disponível para maximizar seus atendimentos.';
+    }
+
+    var totalDadosHist = Object.keys(metricas).length;
+    mostrarToast('✅ Preenchido com base em ' + totalDadosHist + ' dias de histórico.', 'sucesso');
+
+  } catch(e) {
+    console.error('[auto-preencher]', e);
+    mostrarToast('❌ ' + e.message, 'erro');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Auto-preencher com histórico'; }
+  }
+}
+
+window.gerarDiasFrota        = gerarDiasFrota;
 window.atualizarCirculoFrota = atualizarCirculoFrota;
-window.gerarFrota           = gerarFrota;
-window.publicarFrota        = publicarFrota;
+window.gerarFrota            = gerarFrota;
+window.publicarFrota         = publicarFrota;
+window.autoPreencherFrota    = autoPreencherFrota;
