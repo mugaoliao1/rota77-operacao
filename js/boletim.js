@@ -275,9 +275,9 @@ function _construirHtmlBoletim(dados) {
     '<div class="header-dia">' + dados.diaSemana + '</div></div>\n' +
     '<div class="secao"><div class="secao-label">Resultado do Dia</div><div class="taxas-grid">' +
     '<div class="taxa-box verde"><div class="taxa-label">Taxa de finalização</div><div class="taxa-valor verde">' + _fmtPct(dados.taxaFinalizacao) + '</div></div>' +
-    '<div class="taxa-box verde"><div class="taxa-label">Cancel. real (2h)</div><div class="taxa-valor verde">' + _fmtPct(dados.cancelReaisPct) + '</div><div class="taxa-sub">' + dados.cancelReais + ' cancelamentos</div></div>' +
-    '<div class="taxa-box vermelho"><div class="taxa-label">Cancel. total</div><div class="taxa-valor vermelho">' + _fmtPct(dados.cancelTotalPct) + '</div><div class="taxa-sub">' + dados.canceladas + ' corridas</div></div>' +
-    '<div class="taxa-box"><div class="taxa-label">Não atendidas</div><div class="taxa-valor">' + _fmtPct(dados.naoAtendidasPct) + '</div><div class="taxa-sub">' + dados.naoAtendidas + ' chamadas</div></div>' +
+    '<div class="taxa-box verde"><div class="taxa-label">Cancel. real (2h)</div><div class="taxa-valor verde">' + _fmtPct(dados.cancelReaisPct) + '</div></div>' +
+    '<div class="taxa-box vermelho"><div class="taxa-label">Cancel. total</div><div class="taxa-valor vermelho">' + _fmtPct(dados.cancelTotalPct) + '</div></div>' +
+    '<div class="taxa-box"><div class="taxa-label">Não atendidas</div><div class="taxa-valor">' + _fmtPct(dados.naoAtendidasPct) + '</div></div>' +
     '</div>' + rechamadasHtml + '</div>\n' +
     '<div class="secao"><div class="secao-label">Cancelamentos Reais — Top Motivos</div>' + motivosHtml +
     (dados.horariosCancel.length ? '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cinza-texto);margin-top:12px;margin-bottom:6px;">Horários com mais cancelamentos</div><div class="horarios-wrap">' + horasHtml + '</div>' : '') +
