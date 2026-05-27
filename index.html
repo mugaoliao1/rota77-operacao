@@ -163,6 +163,9 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
     <div class="nav-item" onclick="navegar('radar')">
       <span class="nav-icon">📊</span> Radar Semanal
     </div>
+    <div class="nav-item" onclick="navegar('operacao')">
+      <span class="nav-icon">🔍</span> Operação Rota 77
+    </div>
     <div class="nav-item" onclick="navegar('frota')">
       <span class="nav-icon">📋</span> Boletim da Frota
     </div>
@@ -414,6 +417,53 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
         <a href="https://rota77-operacao.pages.dev/boletim-frota-atual.html" target="_blank" style="color:var(--amarelo);font-size:13px;">📋 rota77-operacao.pages.dev/boletim-frota-atual.html</a>
       </div>
     </div>
+
+  </div>
+
+  <!-- ── OPERAÇÃO ROTA 77 ── -->
+  <div class="page" id="page-operacao">
+
+    <!-- Upload + Período -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-titulo">🔍 Operação Rota 77</div>
+        <div class="card-sub">Análise operacional profunda a partir de relatórios CSV</div>
+      </div>
+      <div class="card-body">
+        <div class="drop-zone" id="op-drop"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="this.classList.remove('over');processarCSVsOperacao(event.dataTransfer.files);event.preventDefault()">
+          <div class="drop-icon">📂</div>
+          <div class="drop-texto"><strong>Arraste os CSVs aqui</strong> (múltiplos arquivos) ou clique para selecionar</div>
+          <input type="file" accept=".csv" multiple id="op-csv-input" style="display:none"
+            onchange="if(this.files.length)processarCSVsOperacao(this.files)">
+        </div>
+        <script>document.getElementById('op-drop').addEventListener('click',function(e){if(e.target.tagName!=='INPUT')document.getElementById('op-csv-input').click();});</script>
+        <span class="info-badge" id="op-info">Nenhum arquivo carregado.</span>
+
+        <div style="margin-top:16px;">
+          <div class="secao-label">Período de análise</div>
+          <div class="form-grid">
+            <div>
+              <label>Data início</label>
+              <input type="date" id="op-periodo-ini">
+            </div>
+            <div>
+              <label>Data fim</label>
+              <input type="date" id="op-periodo-fim">
+            </div>
+          </div>
+        </div>
+
+        <div class="btns-row">
+          <button class="btn btn-primary" id="btn-analisar-op" onclick="analisarOperacao()" disabled>🔍 Analisar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados (renderizados por JS) -->
+    <div id="op-resultados" style="display:none;"></div>
 
   </div>
 
@@ -678,6 +728,7 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 <script src="js/radar.js"></script>
 <script src="js/frota.js"></script>
 <script src="js/historico.js"></script>
+<script src="js/operacao.js"></script>
 <script>
 // ── Navegação ──────────────────────────────────────────────────
 function navegar(pagina) {
