@@ -1,7 +1,249 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8"><title>Radar Semanal — Rota 77</title>
-<style>body{font-family:sans-serif;background:#111f3e;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;}h1{color:#F5A800;}p{color:#8899aa;margin-top:8px;}</style>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar Semanal — Rota 77</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#1a2f5e;--azul-escuro:#111f3e;--amarelo:#F5A800;--verde:#27ae60;--vermelho:#e74c3c;--cinza:#f4f6f9;--cinza-texto:#666;--branco:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Barlow',sans-serif;background:var(--azul-escuro);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 16px;}
+.card{width:100%;max-width:480px;background:var(--branco);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.header{background:var(--azul);padding:24px 24px 20px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(245,168,0,.1);border-radius:50%;}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;}
+.logo-box{background:var(--amarelo);border-radius:8px;padding:6px 10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:900;color:var(--azul);line-height:1.1;}
+.periodo-pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);font-size:10px;font-weight:600;padding:4px 12px;border-radius:20px;}
+.header-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--amarelo);margin-bottom:4px;position:relative;}
+.header-titulo{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--branco);line-height:1;position:relative;}
+.secao{padding:18px 20px;border-bottom:1px solid #eee;}
+.secao:last-child{border-bottom:none;}
+.secao-label{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--amarelo);margin-bottom:12px;}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.kpi-box{background:var(--cinza);border-radius:10px;padding:12px;text-align:center;border-top:3px solid #ddd;}
+.kpi-box.amarelo{border-top-color:var(--amarelo);}
+.kpi-box.verde{border-top-color:var(--verde);}
+.kpi-box.vermelho{border-top-color:var(--vermelho);}
+.kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--azul);line-height:1;}
+.kpi-label{font-size:9px;color:var(--cinza-texto);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+.bar-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.bar-label{font-size:10px;font-weight:700;color:var(--azul);width:42px;flex-shrink:0;}
+.bar-track{flex:1;background:#eee;border-radius:4px;height:14px;overflow:hidden;}
+.bar-fill{height:100%;background:rgba(26,47,94,.2);border-radius:4px;position:relative;min-width:2px;}
+.bar-fill-fin{position:absolute;top:0;left:0;height:100%;background:var(--azul);border-radius:4px;}
+.bar-num{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:900;color:var(--azul);width:36px;text-align:right;flex-shrink:0;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza-texto);padding:6px 8px;text-align:left;border-bottom:2px solid #eee;}
+td{font-size:12px;color:#333;padding:8px 8px;border-bottom:1px solid #f5f5f5;}
+tr:last-child td{border-bottom:none;}
+.td-pos{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;color:#ccc;width:28px;}
+.td-qtd{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--amarelo);text-align:right;}
+.td-pct{font-size:11px;color:var(--cinza-texto);text-align:right;width:36px;}
+.mot-nome{font-size:12px;font-weight:600;color:var(--azul);margin-bottom:4px;}
+.mot-bar{background:#eee;border-radius:3px;height:4px;overflow:hidden;}
+.mot-bar-fill{height:100%;background:var(--amarelo);border-radius:3px;}
+.contexto-box{background:#f0f4ff;border-radius:10px;padding:14px;font-size:12px;color:var(--azul);line-height:1.6;margin-bottom:12px;}
+.destaque-box{background:#fff8e6;border:1px solid rgba(245,168,0,.3);border-radius:10px;padding:12px 14px;font-size:12px;color:#7a5800;line-height:1.6;}
+.destaque-box strong{color:var(--azul);}
+.acao-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.acao-item:last-child{border-bottom:none;}
+.acao-status{font-size:20px;flex-shrink:0;margin-top:1px;}
+.acao-texto{font-size:12px;font-weight:600;color:var(--azul);margin-bottom:2px;}
+.acao-resp{font-size:10px;color:var(--cinza-texto);}
+.fechamento{background:var(--azul);padding:18px 20px;display:flex;align-items:center;gap:12px;}
+.fechamento-emoji{font-size:24px;flex-shrink:0;}
+.fechamento-texto{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;}
+</style>
 </head>
-<body><div><h1>📊 Radar Semanal</h1><p>Nenhum radar publicado ainda.<br>Use o Painel da Operação para publicar.</p></div></body>
+<body>
+<div class="card">
+<div class="header">
+  <div class="header-top"><div class="logo-box">ROTA<br>77</div><div class="periodo-pill">17/05/2026 a 23/05/2026</div></div>
+  <div class="header-eyebrow">📊 Análise semanal</div>
+  <div class="header-titulo">Radar Semanal</div>
+</div>
+<div class="secao"><div class="secao-label">KPIs da Semana</div><div class="kpi-grid">
+    <div class="kpi-box">
+      <div class="kpi-val">4.219</div>
+      <div class="kpi-label">Total de solicitações</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-val">603</div>
+      <div class="kpi-label">Média por dia</div>
+    </div>
+    <div class="kpi-box amarelo">
+      <div class="kpi-val">3.767</div>
+      <div class="kpi-label">Finalizadas</div>
+    </div>
+    <div class="kpi-box verde">
+      <div class="kpi-val">89,3%</div>
+      <div class="kpi-label">Taxa finalização</div>
+    </div>
+    <div class="kpi-box vermelho">
+      <div class="kpi-val">10,3%</div>
+      <div class="kpi-label">Taxa cancelamento</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-val">R$&nbsp;49.423</div>
+      <div class="kpi-label">Receita estimada</div>
+    </div></div></div>
+<div class="secao"><div class="secao-label">Corridas por Dia</div><div class="bar-item">
+      <div class="bar-label">17/05</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:71%">
+          <div class="bar-fill-fin" style="width:87%"></div>
+        </div>
+      </div>
+      <div class="bar-num">501</div>
+    </div><div class="bar-item">
+      <div class="bar-label">18/05</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:77%">
+          <div class="bar-fill-fin" style="width:91%"></div>
+        </div>
+      </div>
+      <div class="bar-num">542</div>
+    </div><div class="bar-item">
+      <div class="bar-label">19/05</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:83%">
+          <div class="bar-fill-fin" style="width:94%"></div>
+        </div>
+      </div>
+      <div class="bar-num">587</div>
+    </div><div class="bar-item">
+      <div class="bar-label">20/05</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:93%">
+          <div class="bar-fill-fin" style="width:91%"></div>
+        </div>
+      </div>
+      <div class="bar-num">658</div>
+    </div><div class="bar-item">
+      <div class="bar-label">21/05</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:88%">
+          <div class="bar-fill-fin" style="width:90%"></div>
+        </div>
+      </div>
+      <div class="bar-num">617</div>
+    </div><div class="bar-item">
+      <div class="bar-label">22/05</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:100%">
+          <div class="bar-fill-fin" style="width:88%"></div>
+        </div>
+      </div>
+      <div class="bar-num">704</div>
+    </div><div class="bar-item">
+      <div class="bar-label">23/05</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:87%">
+          <div class="bar-fill-fin" style="width:85%"></div>
+        </div>
+      </div>
+      <div class="bar-num">610</div>
+    </div></div>
+<div class="secao"><div class="secao-label">Top Motivos de Cancelamento</div><table><thead><tr><th>#</th><th>Motivo</th><th>Qtd</th><th>%</th></tr></thead><tbody><tr>
+      <td class="td-pos">1</td>
+      <td>Tempo de espera</td>
+      <td class="td-qtd">177</td>
+      <td class="td-pct">41%</td>
+    </tr><tr>
+      <td class="td-pos">2</td>
+      <td>Outros</td>
+      <td class="td-qtd">100</td>
+      <td class="td-pct">23%</td>
+    </tr><tr>
+      <td class="td-pos">3</td>
+      <td>Mudança de planos</td>
+      <td class="td-qtd">91</td>
+      <td class="td-pct">21%</td>
+    </tr><tr>
+      <td class="td-pos">4</td>
+      <td>Motorista não está vindo</td>
+      <td class="td-qtd">28</td>
+      <td class="td-pct">6%</td>
+    </tr><tr>
+      <td class="td-pos">5</td>
+      <td>Passageiro não entrou</td>
+      <td class="td-qtd">23</td>
+      <td class="td-pct">5%</td>
+    </tr></tbody></table></div>
+<div class="secao"><div class="secao-label">Top 10 — Motoristas da Semana</div><table><thead><tr><th>#</th><th>Motorista</th><th>Corridas</th></tr></thead><tbody><tr>
+      <td class="td-pos">🥇</td>
+      <td>
+        <div class="mot-nome">André De Mello Oliveira</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:100%"></div></div>
+      </td>
+      <td class="td-qtd">208</td>
+    </tr><tr>
+      <td class="td-pos">🥈</td>
+      <td>
+        <div class="mot-nome">José Alexandre Viana</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:92%"></div></div>
+      </td>
+      <td class="td-qtd">191</td>
+    </tr><tr>
+      <td class="td-pos">🥉</td>
+      <td>
+        <div class="mot-nome">Elizandro Burgel Lopes</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:90%"></div></div>
+      </td>
+      <td class="td-qtd">188</td>
+    </tr><tr>
+      <td class="td-pos">4</td>
+      <td>
+        <div class="mot-nome">Bruno Arruda dos Santos</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:82%"></div></div>
+      </td>
+      <td class="td-qtd">171</td>
+    </tr><tr>
+      <td class="td-pos">5</td>
+      <td>
+        <div class="mot-nome">Dalvo Brites de Freitas</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:81%"></div></div>
+      </td>
+      <td class="td-qtd">169</td>
+    </tr><tr>
+      <td class="td-pos">6</td>
+      <td>
+        <div class="mot-nome">Gabriel Da Paixão Quadro</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:81%"></div></div>
+      </td>
+      <td class="td-qtd">169</td>
+    </tr><tr>
+      <td class="td-pos">7</td>
+      <td>
+        <div class="mot-nome">Paulo Ricardo Lopes Da Silva Dias</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:78%"></div></div>
+      </td>
+      <td class="td-qtd">163</td>
+    </tr><tr>
+      <td class="td-pos">8</td>
+      <td>
+        <div class="mot-nome">Luiz Sergio Fernandes Jaime</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:76%"></div></div>
+      </td>
+      <td class="td-qtd">159</td>
+    </tr><tr>
+      <td class="td-pos">9</td>
+      <td>
+        <div class="mot-nome">Marcelo Moreira Ilha</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:73%"></div></div>
+      </td>
+      <td class="td-qtd">152</td>
+    </tr><tr>
+      <td class="td-pos">10</td>
+      <td>
+        <div class="mot-nome">Rogério Dosso</div>
+        <div class="mot-bar"><div class="mot-bar-fill" style="width:70%"></div></div>
+      </td>
+      <td class="td-qtd">145</td>
+    </tr></tbody></table></div>
+<div class="secao"><div class="secao-label">Diagnóstico da Semana</div><div class="contexto-box">Semana de 19/05/2026 a 26/05/2026. Análise consolidada de 8 dia(s) de operação.</div></div>
+<div class="fechamento"><div class="fechamento-emoji">📊</div><div class="fechamento-texto">Rota 77 — Operação em análise constante. ✅</div></div>
+</div>
+</body>
 </html>
