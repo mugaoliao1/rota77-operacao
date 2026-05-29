@@ -5,6 +5,10 @@ var _opAnalise = null;
 // ── Upload ────────────────────────────────────────────────────
 function processarCSVsOperacao(files) {
   _opCSVs = [];
+  window.dadosImportados = null;
+  var cardQE = document.getElementById('card-conversa-dados');
+  if (cardQE) cardQE.style.display = 'none';
+  if (typeof window.qeLimparContexto === 'function') window.qeLimparContexto();
   var arr = Array.from(files);
   if (!arr.length) return;
 
@@ -49,6 +53,21 @@ function _finalizarCarregamentoOp(total) {
   document.getElementById('op-periodo-fim').value = fim;
   document.getElementById('btn-analisar-op').disabled = false;
   mostrarToast('✅ ' + total + ' arquivo(s) carregado(s).', 'sucesso');
+
+  // Bridge: expõe dados no formato esperado pelo motor de consulta (Fases 3 e 4)
+  var _qeMet = {}, _qeMot = {};
+  todas.filter(function(c) { return c.statusNorm === 'finalizada'; }).forEach(function(c) {
+    if (!_qeMet[c.data]) _qeMet[c.data] = { corridas:0, km:0, tempo_min:0 };
+    _qeMet[c.data].corridas++;
+    _qeMet[c.data].km += (c.km || 0);
+    _qeMet[c.data].tempo_min += (c.tempo || 0);
+    if (c.nomeMotorista) {
+      if (!_qeMot[c.nomeMotorista]) _qeMot[c.nomeMotorista] = { corridas:0, km:0 };
+      _qeMot[c.nomeMotorista].corridas++;
+      _qeMot[c.nomeMotorista].km += (c.km || 0);
+    }
+  });
+  window.dadosImportados = { todasCorridas: todas, metricas: _qeMet, motoristas: _qeMot };
 }
 
 // ── Análise ───────────────────────────────────────────────────
@@ -71,6 +90,8 @@ function analisarOperacao() {
       var res = document.getElementById('op-resultados');
       res.style.display = 'block';
       res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var cardQE = document.getElementById('card-conversa-dados');
+      if (cardQE) cardQE.style.display = 'block';
     } catch(e) {
       console.error('[operacao/analisar]', e);
       mostrarToast('❌ Erro na análise: ' + e.message, 'erro');

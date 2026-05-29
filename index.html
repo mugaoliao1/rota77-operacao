@@ -18,7 +18,11 @@
   --cinza4: #8899aa;
   --branco: #fff;
   --sidebar-w: 220px;
+  /* aliases para o motor de consulta (Fases 3 e 4) */
+  --preto3: #111f3e;
 }
+@keyframes qeFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.qe-ctx-tag { background:var(--cinza1);border:1px solid var(--cinza2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--cinza4);font-weight:600;white-space:nowrap;font-family:'Barlow',sans-serif; }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Barlow',sans-serif;background:var(--azul-esc);color:var(--branco);min-height:100vh;display:flex;}
 
@@ -468,6 +472,56 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
     <!-- Resultados (renderizados por JS) -->
     <div id="op-resultados" style="display:none;"></div>
 
+    <!-- ── CONVERSAR COM OS DADOS (aparece após análise) ── -->
+    <div class="card" id="card-conversa-dados" style="display:none;margin-top:20px;">
+      <div class="card-header">
+        <div class="card-titulo">💬 Conversar com os Dados</div>
+        <div class="card-sub">Motor local · sem API · sem internet · 15 tipos de consulta</div>
+      </div>
+      <div class="card-body">
+
+        <!-- Input + botão -->
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <input type="text" id="qe-input"
+            placeholder="Ex: Qual motorista mais cancelou? Qual foi o pico operacional?"
+            style="flex:1;"
+            onkeydown="if(event.key==='Enter')qePerguntar()" />
+          <button class="btn btn-primary" onclick="qePerguntar()" style="white-space:nowrap;">Perguntar</button>
+        </div>
+
+        <!-- Sugestões rápidas -->
+        <div style="margin-bottom:18px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--amarelo);margin-bottom:10px;">Sugestões rápidas</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <button onclick="qeSugestao('Qual motorista tem mais cancelamentos?')" class="btn btn-secondary btn-sm">Mais cancelamentos</button>
+            <button onclick="qeSugestao('Qual horário tem mais corridas?')" class="btn btn-secondary btn-sm">Pico por horário</button>
+            <button onclick="qeSugestao('Os cancelamentos estão aumentando?')" class="btn btn-secondary btn-sm">Tendência</button>
+            <button onclick="qeSugestao('Qual motorista tem mais maçaneta?')" class="btn btn-secondary btn-sm">Maçaneta</button>
+            <button onclick="qeSugestao('Quem mais trabalha na madrugada?')" class="btn btn-secondary btn-sm">Madrugada</button>
+            <button onclick="qeSugestao('Qual a taxa de cancelamento por motorista?')" class="btn btn-secondary btn-sm">Taxa cancelamento</button>
+            <button onclick="qeSugestao('Quem mais finalizou corridas?')" class="btn btn-secondary btn-sm">Ranking finalizadas</button>
+            <button onclick="qeSugestao('Como foi o período da manhã?')" class="btn btn-secondary btn-sm">Período manhã</button>
+          </div>
+        </div>
+
+        <!-- Painel de contexto ativo (Fase 4) -->
+        <div id="qe-ctx-painel"
+          style="display:none;align-items:center;gap:8px;flex-wrap:wrap;
+                 padding:8px 12px;background:var(--azul-esc);
+                 border:1px solid var(--cinza2);border-radius:8px;
+                 margin-bottom:14px;">
+        </div>
+
+        <!-- Área de respostas -->
+        <div id="qe-historico" style="min-height:40px;">
+          <div id="qe-placeholder" style="text-align:center;padding:20px 0;color:var(--cinza4);font-size:12px;font-family:'Barlow',sans-serif;">
+            Faça sua primeira pergunta sobre os dados analisados
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 
   <!-- ── HISTÓRICO OPERACIONAL ── -->
@@ -756,6 +810,8 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 <script src="js/historico.js"></script>
 <script src="js/operacao.js"></script>
 <script src="js/operacao-historico.js"></script>
+<script src="js/operacao-query-engine.js"></script>
+<script src="js/operacao-contexto.js"></script>
 <script>
 // ── Navegação ──────────────────────────────────────────────────
 function navegar(pagina) {
