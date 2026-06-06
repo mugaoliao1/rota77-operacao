@@ -110,7 +110,7 @@
     <div class="header-eyebrow">🌙 Organização da equipe</div>
     <div class="header-titulo">Madrugada<br><span>coberta.</span></div>
     <div class="header-sub">Toque na vaga e escreva seu nome</div>
-    <div class="semana-badge">📅 Domingo 31/05 até Sábado 06/06</div>
+    <div class="semana-badge">📅 Quarta 27/05 até Segunda 01/06</div>
     <br>
     <div class="status-bar" id="status-conexao">
       <div class="status-dot"></div>
@@ -168,9 +168,93 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const SEMANA_KEY = "semana_31_maio_06_junho_2026";
+const SEMANA_KEY = "semana_27_maio_01_junho_2026";
 const escalaRef = db.ref("escalas/" + SEMANA_KEY);
 const escala = [
+  {
+    "id": "qua",
+    "nome": "Quarta-feira",
+    "sigla": "QUA",
+    "data": "27/05",
+    "tipo": "padrao",
+    "turnos": [
+      {
+        "id": "qua_00",
+        "titulo": "00h às 02h",
+        "icon": "🌃",
+        "vagas": 2
+      },
+      {
+        "id": "qua_02",
+        "titulo": "02h às 06h",
+        "icon": "🌙",
+        "vagas": 1
+      }
+    ]
+  },
+  {
+    "id": "qui",
+    "nome": "Quinta-feira",
+    "sigla": "QUI",
+    "data": "28/05",
+    "tipo": "padrao",
+    "turnos": [
+      {
+        "id": "qui_00",
+        "titulo": "00h às 02h",
+        "icon": "🌃",
+        "vagas": 2
+      },
+      {
+        "id": "qui_02",
+        "titulo": "02h às 06h",
+        "icon": "🌙",
+        "vagas": 1
+      }
+    ]
+  },
+  {
+    "id": "sex",
+    "nome": "Sexta-feira",
+    "sigla": "SEX",
+    "data": "29/05",
+    "tipo": "intenso",
+    "turnos": [
+      {
+        "id": "sex_00",
+        "titulo": "00h às 02h",
+        "icon": "🌃",
+        "vagas": 4
+      },
+      {
+        "id": "sex_02",
+        "titulo": "02h às 06h",
+        "icon": "🌙",
+        "vagas": 2
+      }
+    ]
+  },
+  {
+    "id": "sab",
+    "nome": "Sábado",
+    "sigla": "SÁB",
+    "data": "30/05",
+    "tipo": "intenso",
+    "turnos": [
+      {
+        "id": "sab_00",
+        "titulo": "00h às 02h",
+        "icon": "🌃",
+        "vagas": 4
+      },
+      {
+        "id": "sab_02",
+        "titulo": "02h às 06h",
+        "icon": "🌙",
+        "vagas": 2
+      }
+    ]
+  },
   {
     "id": "dom",
     "nome": "Domingo",
@@ -210,111 +294,6 @@ const escala = [
         "titulo": "02h às 06h",
         "icon": "🌙",
         "vagas": 1
-      }
-    ]
-  },
-  {
-    "id": "ter",
-    "nome": "Terça-feira",
-    "sigla": "TER",
-    "data": "02/06",
-    "tipo": "padrao",
-    "turnos": [
-      {
-        "id": "ter_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 2
-      },
-      {
-        "id": "ter_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 1
-      }
-    ]
-  },
-  {
-    "id": "qua",
-    "nome": "Quarta-feira",
-    "sigla": "QUA",
-    "data": "03/06",
-    "tipo": "padrao",
-    "turnos": [
-      {
-        "id": "qua_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 2
-      },
-      {
-        "id": "qua_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 1
-      }
-    ]
-  },
-  {
-    "id": "qui",
-    "nome": "Quinta-feira",
-    "sigla": "QUI",
-    "data": "04/06",
-    "tipo": "padrao",
-    "turnos": [
-      {
-        "id": "qui_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 2
-      },
-      {
-        "id": "qui_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 1
-      }
-    ]
-  },
-  {
-    "id": "sex",
-    "nome": "Sexta-feira",
-    "sigla": "SEX",
-    "data": "05/06",
-    "tipo": "intenso",
-    "turnos": [
-      {
-        "id": "sex_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 4
-      },
-      {
-        "id": "sex_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 2
-      }
-    ]
-  },
-  {
-    "id": "sab",
-    "nome": "Sábado",
-    "sigla": "SÁB",
-    "data": "06/06",
-    "tipo": "intenso",
-    "turnos": [
-      {
-        "id": "sab_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 4
-      },
-      {
-        "id": "sab_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 2
       }
     ]
   }

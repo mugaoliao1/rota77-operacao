@@ -476,31 +476,68 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
     <div class="card" id="card-conversa-dados" style="display:none;margin-top:20px;">
       <div class="card-header">
         <div class="card-titulo">💬 Conversar com os Dados</div>
-        <div class="card-sub">Motor local · sem API · sem internet · 15 tipos de consulta</div>
+        <div class="card-sub">Motor local · sem API · sem internet · 22 tipos de consulta · passageiros · risco operacional</div>
       </div>
       <div class="card-body">
 
         <!-- Input + botão -->
         <div style="display:flex;gap:10px;margin-bottom:16px;">
           <input type="text" id="qe-input"
-            placeholder="Ex: Qual motorista mais cancelou? Qual foi o pico operacional?"
+            placeholder="Ex: Maçanetas finalizadas por motorista · Score de risco · Passageiros mais ativos · Resumo operacional"
             style="flex:1;"
             onkeydown="if(event.key==='Enter')qePerguntar()" />
           <button class="btn btn-primary" onclick="qePerguntar()" style="white-space:nowrap;">Perguntar</button>
         </div>
 
-        <!-- Sugestões rápidas -->
+        <!-- Perguntas prontas por categoria -->
         <div style="margin-bottom:18px;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--amarelo);margin-bottom:10px;">Sugestões rápidas</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            <button onclick="qeSugestao('Qual motorista tem mais cancelamentos?')" class="btn btn-secondary btn-sm">Mais cancelamentos</button>
-            <button onclick="qeSugestao('Qual horário tem mais corridas?')" class="btn btn-secondary btn-sm">Pico por horário</button>
-            <button onclick="qeSugestao('Os cancelamentos estão aumentando?')" class="btn btn-secondary btn-sm">Tendência</button>
-            <button onclick="qeSugestao('Qual motorista tem mais maçaneta?')" class="btn btn-secondary btn-sm">Maçaneta</button>
-            <button onclick="qeSugestao('Quem mais trabalha na madrugada?')" class="btn btn-secondary btn-sm">Madrugada</button>
-            <button onclick="qeSugestao('Qual a taxa de cancelamento por motorista?')" class="btn btn-secondary btn-sm">Taxa cancelamento</button>
-            <button onclick="qeSugestao('Quem mais finalizou corridas?')" class="btn btn-secondary btn-sm">Ranking finalizadas</button>
-            <button onclick="qeSugestao('Como foi o período da manhã?')" class="btn btn-secondary btn-sm">Período manhã</button>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--amarelo);margin-bottom:12px;">Perguntas prontas</div>
+
+          <!-- Operação -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza4);margin-bottom:6px;">Operação</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button onclick="qeSugestao('Resumo operacional do período')" class="btn btn-secondary btn-sm">Resumo do período</button>
+              <button onclick="qeSugestao('Qual horário tem mais corridas?')" class="btn btn-secondary btn-sm">Pico por horário</button>
+              <button onclick="qeSugestao('Os cancelamentos estão aumentando?')" class="btn btn-secondary btn-sm">Tendência cancelamentos</button>
+              <button onclick="qeSugestao('A operação está crescendo?')" class="btn btn-secondary btn-sm">Tendência corridas</button>
+              <button onclick="qeSugestao('Como foi o período da manhã?')" class="btn btn-secondary btn-sm">Período manhã</button>
+              <button onclick="qeSugestao('Como foi o período da noite?')" class="btn btn-secondary btn-sm">Período noite</button>
+              <button onclick="qeSugestao('Quem mais trabalha na madrugada?')" class="btn btn-secondary btn-sm">Madrugada</button>
+            </div>
+          </div>
+
+          <!-- Motoristas -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza4);margin-bottom:6px;">Motoristas</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button onclick="qeSugestao('Quem mais finalizou corridas?')" class="btn btn-secondary btn-sm">Ranking finalizadas</button>
+              <button onclick="qeSugestao('Qual motorista tem mais cancelamentos?')" class="btn btn-secondary btn-sm">Mais cancelamentos</button>
+              <button onclick="qeSugestao('Qual a taxa de cancelamento por motorista?')" class="btn btn-secondary btn-sm">Taxa cancelamento</button>
+              <button onclick="qeSugestao('Quem tem menor volume de corridas?')" class="btn btn-secondary btn-sm">Menor volume</button>
+            </div>
+          </div>
+
+          <!-- Maçanetas -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza4);margin-bottom:6px;">Maçanetas</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button onclick="qeSugestao('Qual motorista tem mais maçaneta?')" class="btn btn-secondary btn-sm">Maçanetas totais</button>
+              <button onclick="qeSugestao('Maçanetas finalizadas por motorista')" class="btn btn-secondary btn-sm">Maçanetas finalizadas</button>
+              <button onclick="qeSugestao('Maçanetas canceladas por motorista')" class="btn btn-secondary btn-sm">Maçanetas canceladas</button>
+              <button onclick="qeSugestao('Análise de maçaneta por horário')" class="btn btn-secondary btn-sm">Análise por hora</button>
+              <button onclick="qeSugestao('Motoristas com maior risco operacional')" class="btn btn-secondary btn-sm">Score de risco</button>
+            </div>
+          </div>
+
+          <!-- Passageiros -->
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza4);margin-bottom:6px;">Passageiros</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button onclick="qeSugestao('Quais passageiros mais usaram o serviço?')" class="btn btn-secondary btn-sm">Mais ativos</button>
+              <button onclick="qeSugestao('Quais passageiros mais cancelaram?')" class="btn btn-secondary btn-sm">Mais cancelamentos</button>
+              <button onclick="qeSugestao('Quantos passageiros novos tivemos no período?')" class="btn btn-secondary btn-sm">Passageiros novos</button>
+            </div>
           </div>
         </div>
 
@@ -808,6 +845,7 @@ iframe{width:100%;height:420px;border:none;border-radius:8px;background:#111f3e;
 <script src="js/radar.js"></script>
 <script src="js/frota.js"></script>
 <script src="js/historico.js"></script>
+<script src="js/metricas-rota77.js"></script>
 <script src="js/operacao.js"></script>
 <script src="js/operacao-historico.js"></script>
 <script src="js/operacao-query-engine.js"></script>
