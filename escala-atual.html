@@ -110,7 +110,7 @@
     <div class="header-eyebrow">🌙 Organização da equipe</div>
     <div class="header-titulo">Madrugada<br><span>coberta.</span></div>
     <div class="header-sub">Toque na vaga e escreva seu nome</div>
-    <div class="semana-badge">📅 Quinta 25/06 até Quinta 02/07</div>
+    <div class="semana-badge">📅 Domingo 05/07 até Domingo 12/07</div>
     <br>
     <div class="status-bar" id="status-conexao">
       <div class="status-dot"></div>
@@ -168,77 +168,14 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const SEMANA_KEY = "semana_25_junho_02_julho_2026";
+const SEMANA_KEY = "semana_05_julho_12_julho_2026";
 const escalaRef = db.ref("escalas/" + SEMANA_KEY);
 const escala = [
-  {
-    "id": "qui",
-    "nome": "Quinta-feira",
-    "sigla": "QUI",
-    "data": "25/06",
-    "tipo": "padrao",
-    "turnos": [
-      {
-        "id": "qui_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 2
-      },
-      {
-        "id": "qui_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 1
-      }
-    ]
-  },
-  {
-    "id": "sex",
-    "nome": "Sexta-feira",
-    "sigla": "SEX",
-    "data": "26/06",
-    "tipo": "intenso",
-    "turnos": [
-      {
-        "id": "sex_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 4
-      },
-      {
-        "id": "sex_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 2
-      }
-    ]
-  },
-  {
-    "id": "sab",
-    "nome": "Sábado",
-    "sigla": "SÁB",
-    "data": "27/06",
-    "tipo": "intenso",
-    "turnos": [
-      {
-        "id": "sab_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 4
-      },
-      {
-        "id": "sab_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 2
-      }
-    ]
-  },
   {
     "id": "dom",
     "nome": "Domingo",
     "sigla": "DOM",
-    "data": "28/06",
+    "data": "05/07",
     "tipo": "padrao",
     "turnos": [
       {
@@ -259,7 +196,7 @@ const escala = [
     "id": "seg",
     "nome": "Segunda-feira",
     "sigla": "SEG",
-    "data": "29/06",
+    "data": "06/07",
     "tipo": "padrao",
     "turnos": [
       {
@@ -280,7 +217,7 @@ const escala = [
     "id": "ter",
     "nome": "Terça-feira",
     "sigla": "TER",
-    "data": "30/06",
+    "data": "07/07",
     "tipo": "padrao",
     "turnos": [
       {
@@ -301,7 +238,7 @@ const escala = [
     "id": "qua",
     "nome": "Quarta-feira",
     "sigla": "QUA",
-    "data": "01/07",
+    "data": "08/07",
     "tipo": "padrao",
     "turnos": [
       {
@@ -319,20 +256,83 @@ const escala = [
     ]
   },
   {
-    "id": "qui2",
+    "id": "qui",
     "nome": "Quinta-feira",
     "sigla": "QUI",
-    "data": "02/07",
+    "data": "09/07",
     "tipo": "padrao",
     "turnos": [
       {
-        "id": "qui2_00",
+        "id": "qui_00",
         "titulo": "00h às 02h",
         "icon": "🌃",
         "vagas": 2
       },
       {
-        "id": "qui2_02",
+        "id": "qui_02",
+        "titulo": "02h às 06h",
+        "icon": "🌙",
+        "vagas": 1
+      }
+    ]
+  },
+  {
+    "id": "sex",
+    "nome": "Sexta-feira",
+    "sigla": "SEX",
+    "data": "10/07",
+    "tipo": "intenso",
+    "turnos": [
+      {
+        "id": "sex_00",
+        "titulo": "00h às 02h",
+        "icon": "🌃",
+        "vagas": 4
+      },
+      {
+        "id": "sex_02",
+        "titulo": "02h às 06h",
+        "icon": "🌙",
+        "vagas": 2
+      }
+    ]
+  },
+  {
+    "id": "sab",
+    "nome": "Sábado",
+    "sigla": "SÁB",
+    "data": "11/07",
+    "tipo": "intenso",
+    "turnos": [
+      {
+        "id": "sab_00",
+        "titulo": "00h às 02h",
+        "icon": "🌃",
+        "vagas": 4
+      },
+      {
+        "id": "sab_02",
+        "titulo": "02h às 06h",
+        "icon": "🌙",
+        "vagas": 2
+      }
+    ]
+  },
+  {
+    "id": "dom2",
+    "nome": "Domingo",
+    "sigla": "DOM",
+    "data": "12/07",
+    "tipo": "padrao",
+    "turnos": [
+      {
+        "id": "dom2_00",
+        "titulo": "00h às 02h",
+        "icon": "🌃",
+        "vagas": 2
+      },
+      {
+        "id": "dom2_02",
         "titulo": "02h às 06h",
         "icon": "🌙",
         "vagas": 1
