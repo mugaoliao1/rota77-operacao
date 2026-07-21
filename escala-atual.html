@@ -110,7 +110,7 @@
     <div class="header-eyebrow">🌙 Organização da equipe</div>
     <div class="header-titulo">Madrugada<br><span>coberta.</span></div>
     <div class="header-sub">Toque na vaga e escreva seu nome</div>
-    <div class="semana-badge">📅 Segunda 13/07 até Segunda 20/07</div>
+    <div class="semana-badge">📅 Terça 21/07 até Terça 28/07</div>
     <br>
     <div class="status-bar" id="status-conexao">
       <div class="status-dot"></div>
@@ -168,35 +168,14 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const SEMANA_KEY = "semana_13_julho_20_julho_2026";
+const SEMANA_KEY = "semana_21_julho_28_julho_2026";
 const escalaRef = db.ref("escalas/" + SEMANA_KEY);
 const escala = [
-  {
-    "id": "seg",
-    "nome": "Segunda-feira",
-    "sigla": "SEG",
-    "data": "13/07",
-    "tipo": "padrao",
-    "turnos": [
-      {
-        "id": "seg_00",
-        "titulo": "00h às 02h",
-        "icon": "🌃",
-        "vagas": 2
-      },
-      {
-        "id": "seg_02",
-        "titulo": "02h às 06h",
-        "icon": "🌙",
-        "vagas": 1
-      }
-    ]
-  },
   {
     "id": "ter",
     "nome": "Terça-feira",
     "sigla": "TER",
-    "data": "14/07",
+    "data": "21/07",
     "tipo": "padrao",
     "turnos": [
       {
@@ -217,7 +196,7 @@ const escala = [
     "id": "qua",
     "nome": "Quarta-feira",
     "sigla": "QUA",
-    "data": "15/07",
+    "data": "22/07",
     "tipo": "padrao",
     "turnos": [
       {
@@ -238,7 +217,7 @@ const escala = [
     "id": "qui",
     "nome": "Quinta-feira",
     "sigla": "QUI",
-    "data": "16/07",
+    "data": "23/07",
     "tipo": "padrao",
     "turnos": [
       {
@@ -259,7 +238,7 @@ const escala = [
     "id": "sex",
     "nome": "Sexta-feira",
     "sigla": "SEX",
-    "data": "17/07",
+    "data": "24/07",
     "tipo": "intenso",
     "turnos": [
       {
@@ -280,7 +259,7 @@ const escala = [
     "id": "sab",
     "nome": "Sábado",
     "sigla": "SÁB",
-    "data": "18/07",
+    "data": "25/07",
     "tipo": "intenso",
     "turnos": [
       {
@@ -301,7 +280,7 @@ const escala = [
     "id": "dom",
     "nome": "Domingo",
     "sigla": "DOM",
-    "data": "19/07",
+    "data": "26/07",
     "tipo": "padrao",
     "turnos": [
       {
@@ -319,20 +298,41 @@ const escala = [
     ]
   },
   {
-    "id": "seg2",
+    "id": "seg",
     "nome": "Segunda-feira",
     "sigla": "SEG",
-    "data": "20/07",
+    "data": "27/07",
     "tipo": "padrao",
     "turnos": [
       {
-        "id": "seg2_00",
+        "id": "seg_00",
         "titulo": "00h às 02h",
         "icon": "🌃",
         "vagas": 2
       },
       {
-        "id": "seg2_02",
+        "id": "seg_02",
+        "titulo": "02h às 06h",
+        "icon": "🌙",
+        "vagas": 1
+      }
+    ]
+  },
+  {
+    "id": "ter2",
+    "nome": "Terça-feira",
+    "sigla": "TER",
+    "data": "28/07",
+    "tipo": "padrao",
+    "turnos": [
+      {
+        "id": "ter2_00",
+        "titulo": "00h às 02h",
+        "icon": "🌃",
+        "vagas": 2
+      },
+      {
+        "id": "ter2_02",
         "titulo": "02h às 06h",
         "icon": "🌙",
         "vagas": 1
